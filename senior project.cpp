@@ -2,6 +2,8 @@
 #include <filesystem>
 #include <iostream>
 #include <string>
+#include "Map.h"
+#include "Tile.h"
 
 using namespace sf;
 using namespace std;
@@ -33,7 +35,8 @@ string getPath() {
 
 int main()
 {
-    RenderWindow window(VideoMode(1000,1000), "Fire Emblem");
+    RenderWindow window(VideoMode(750,700), "Fire Emblem");
+    
     RectangleShape shape(Vector2f(10,10));
     shape.setFillColor(Color::Green);
 
@@ -46,6 +49,10 @@ int main()
     chrom.setScale(3.f, 3.f);
     chrom.setPosition(Vector2f(500, 500));
     
+    Map gameMap;
+    gameMap.setTileLocations();
+    gameMap.printLocations();
+
     
     sf::Sprite temp_chrom;
     temp_chrom.setTexture(test);
@@ -77,11 +84,18 @@ int main()
 
             if (event.type == sf::Event::MouseButtonReleased) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
+                    sf::Vector2f mousePos = sf::Vector2f(sf::Mouse::getPosition(window));
                     dragging = false;
-                    chrom.setPosition(update);
+                    //correct position here
+                    cout << "x: " << mousePos.x << endl
+                        << "y: " << mousePos.y << endl;
+
+                //    cout << update.x << endl;
+
+                    chrom.setPosition(gameMap.correctPositions(update));
                     temp_chrom.setPosition(chrom.getPosition());
                     currentPosition = chrom.getPosition();
-                    cout << "\nhi" << endl;
+                 //   cout << "\nhi" << endl;
                 }
             }
         }
@@ -109,16 +123,13 @@ int main()
 
          //   cout << mousePos.x << endl;
             
-            if ((currentPosition.x - 100.0) <= (event.mouseButton.x) && (event.mouseButton.x) <= (currentPosition.x + 100.0)){
+        //    if ((currentPosition.x - 100.0) <= (event.mouseButton.x) && (event.mouseButton.x) <= (currentPosition.x + 100.0)){
                 //if ((currentPosition.y - 100.0) <= (event.mouseButton.y) && (event.mouseButton.y) <= (currentPosition.y + 100.0)) {
                     update = mousePos + offset;
-                    cout << "cock " << endl;
-                    cout << "mouseButton: " << event.mouseButton.x << "currentPosition.x: " << (currentPosition.x - 50) << endl;
+             //       cout << "cock " << endl;
+            //        cout << "mouseButton: " << event.mouseButton.x << "currentPosition.x: " << (currentPosition.x - 50) << endl;
                 //}
-            }
-            else {
-                cout << "blow me" << endl;
-            }
+         //   }
         //    cout << "event.mouseButton.x: " << event.mouseButton.x << " (chrom.getPosition().x-5: " << (chrom.getPosition().x - 5) << endl;
             temp_chrom.setPosition(mousePos + offset);
             
