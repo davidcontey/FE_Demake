@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include "Map.h"
+#include "Unit.h"
 #include "Tile.h"
 
 using namespace sf;
@@ -35,33 +36,36 @@ string getPath() {
 
 int main()
 {
-    RenderWindow window(VideoMode(750,700), "Fire Emblem");
-    
-    RectangleShape shape(Vector2f(10,10));
+    RenderWindow window(VideoMode(750, 700), "Fire Emblem");
+
+    RectangleShape shape(Vector2f(10, 10));
     shape.setFillColor(Color::Green);
 
     sf::Texture test;
-    if (!test.loadFromFile(getPath() + "/ct1.png")) {
-    }
+    Unit unit;
+    unit.setSpriteTexture(getPath() + "ct1.png");
+  //  if (!test.loadFromFile(getPath() + "/ct1.png")) {
+  //  }
 
     sf::Sprite chrom;
     chrom.setTexture(test);
     chrom.setScale(3.f, 3.f);
     chrom.setPosition(Vector2f(500, 500));
-    
+
     Map gameMap;
     gameMap.setTileLocations();
     gameMap.printLocations();
 
-    
+
     sf::Sprite temp_chrom;
     temp_chrom.setTexture(test);
     temp_chrom.setScale(3.f, 3.f);
     temp_chrom.setPosition(chrom.getPosition());
-    
+
     bool dragging = false;
-    sf::Vector2f offset;
+    Vector2f offset;
     Vector2f currentPosition = chrom.getPosition();
+    Vector2f init = Vector2f(500, 000);
     Vector2f update = Vector2f(0, 0);
     while (window.isOpen())
     {
@@ -75,9 +79,19 @@ int main()
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     // Check if the mouse click is inside the sprite
-                    if (chrom.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                    cout << "left clicked" << endl;
+                    FloatRect boundTest = unit.getSprite().getGlobalBounds();
+                    cout << "left: "<<boundTest.left << endl;
+                    cout << "top: " << boundTest.top << endl;
+                    cout << "width: " << boundTest.width << endl;
+                    cout << "height: " << boundTest.height << endl;
+                    if (unit.getSprite().getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
                         dragging = true;
-                        offset = temp_chrom.getPosition() - sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
+                        Vector2f unitPos = unit.getSprite().getPosition();
+                        cout << "unit x: " << unitPos.x << ", unit y: " << unitPos.y << endl;
+
+                        cout << "offset x: " << offset.x << ", offset y: " << offset.y << endl;
+                        offset = unit.getSprite().getPosition() - sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
                     }
                 }
             }
@@ -90,12 +104,12 @@ int main()
                     cout << "x: " << mousePos.x << endl
                         << "y: " << mousePos.y << endl;
 
-                //    cout << update.x << endl;
+                    //    cout << update.x << endl;
 
-                    chrom.setPosition(gameMap.correctPositions(update));
-                    temp_chrom.setPosition(chrom.getPosition());
-                    currentPosition = chrom.getPosition();
-                 //   cout << "\nhi" << endl;
+                    init = gameMap.correctPositions(update);
+                //    temp_chrom.setPosition(chrom.getPosition());
+                    currentPosition = unit.getSprite().getPosition();
+                    //   cout << "\nhi" << endl;
                 }
             }
         }
@@ -103,10 +117,10 @@ int main()
         if (dragging) {
             // Update the sprite's position while dragging
             sf::Vector2f mousePos = sf::Vector2f(sf::Mouse::getPosition(window));
-            update = chrom.getPosition();
+            update = unit.getSprite().getPosition();
             //offset is distance
             //mousePos is you know
-            
+
             if (mousePos.x < 0) {
                 mousePos.x = 0;
             }
@@ -121,32 +135,34 @@ int main()
             }
 
 
-         //   cout << mousePos.x << endl;
-            
-        //    if ((currentPosition.x - 100.0) <= (event.mouseButton.x) && (event.mouseButton.x) <= (currentPosition.x + 100.0)){
-                //if ((currentPosition.y - 100.0) <= (event.mouseButton.y) && (event.mouseButton.y) <= (currentPosition.y + 100.0)) {
-                    update = mousePos + offset;
-             //       cout << "cock " << endl;
-            //        cout << "mouseButton: " << event.mouseButton.x << "currentPosition.x: " << (currentPosition.x - 50) << endl;
-                //}
-         //   }
-        //    cout << "event.mouseButton.x: " << event.mouseButton.x << " (chrom.getPosition().x-5: " << (chrom.getPosition().x - 5) << endl;
-            temp_chrom.setPosition(mousePos + offset);
-            
+            //   cout << mousePos.x << endl;
+
+           //    if ((currentPosition.x - 100.0) <= (event.mouseButton.x) && (event.mouseButton.x) <= (currentPosition.x + 100.0)){
+                   //if ((currentPosition.y - 100.0) <= (event.mouseButton.y) && (event.mouseButton.y) <= (currentPosition.y + 100.0)) {
+            update = mousePos + offset;
+            //       cout << "cock " << endl;
+           //        cout << "mouseButton: " << event.mouseButton.x << "currentPosition.x: " << (currentPosition.x - 50) << endl;
+               //}
+        //   }
+       //    cout << "event.mouseButton.x: " << event.mouseButton.x << " (chrom.getPosition().x-5: " << (chrom.getPosition().x - 5) << endl;
+        //    temp_chrom.setPosition(mousePos + offset);
+
         }
 
-        
+
         window.clear();
-        
+
         if (dragging == true) {
-            window.draw(temp_chrom);
+            unit.drawSprite(window, update, getPath() + "ct1.png");
         }
 
         //window.draw(shape);
-        
+
         if (dragging == false) {
-            window.draw(chrom);
+            unit.drawSprite(window, update, getPath() + "ct1.png");
         }
+    //    window.draw(unit.getSprite());
+    //    unit.drawSprite(window, update, getPath() + "ct1.png");
         window.display();
     }
 
@@ -157,7 +173,7 @@ struct Position {
     int x;
     int y;
 
-    bool operator==(Position & position) const{
+    bool operator==(Position& position) const {
         return this->x == position.x && this->y == position.y;
     }
 };

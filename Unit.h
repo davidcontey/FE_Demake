@@ -1,8 +1,11 @@
 #pragma once
 #include <iostream>
+#include <SFML/Graphics.hpp>
 
-class Unit
-{
+using namespace sf;
+using namespace std;
+
+class Unit{
 private:
 	short level;
     short hp;
@@ -15,6 +18,7 @@ private:
 	short def;
 	short res;
 	short mov;
+    Sprite sprite;
 public:
 	Unit() {
 		//meow 
@@ -140,5 +144,33 @@ public:
         }
         return false;
     }
-};
 
+    void setSpriteTexture(string path) {
+        Texture texture;
+        cout << path << endl;
+        texture.loadFromFile(path);
+        sprite.setTexture(texture);
+        sprite.setScale(3.f, 3.f);
+        sprite.setPosition(Vector2f(500, 500));
+    }
+
+    void setSpritePosition(Vector2f pos) {
+        sprite.setPosition(pos);
+    }
+
+    Sprite getSprite() {
+        return sprite;
+    }
+
+
+
+    void drawSprite(RenderWindow &window, Vector2f pos, string path){
+        Sprite mc;
+        Texture texture;
+        texture.loadFromFile(path);
+        mc.setTexture(texture);
+        mc.setScale(3.f, 3.f);
+        mc.setPosition(pos);
+        window.draw(mc);
+    }
+};
