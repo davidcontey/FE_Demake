@@ -3,7 +3,9 @@
 #include <iostream>
 #include <string>
 #include "Map.h"
+#include "Unit.h"
 #include "Tile.h"
+#include "Game.h"
 
 using namespace sf;
 using namespace std;
@@ -35,34 +37,17 @@ string getPath() {
 
 int main()
 {
-    RenderWindow window(VideoMode(750,700), "Fire Emblem");
-    
-    RectangleShape shape(Vector2f(10,10));
-    shape.setFillColor(Color::Green);
+    RenderWindow window(VideoMode(750, 700), "Fire Emblem");
 
-    sf::Texture test;
-    if (!test.loadFromFile(getPath() + "/ct1.png")) {
-    }
+    Map gameMap = Map();
 
-    sf::Sprite chrom;
-    chrom.setTexture(test);
-    chrom.setScale(3.f, 3.f);
-    chrom.setPosition(Vector2f(500, 500));
-    
-    Map gameMap;
-    gameMap.setTileLocations();
-    gameMap.printLocations();
-
-    
-    sf::Sprite temp_chrom;
-    temp_chrom.setTexture(test);
-    temp_chrom.setScale(3.f, 3.f);
-    temp_chrom.setPosition(chrom.getPosition());
-    
     bool dragging = false;
-    sf::Vector2f offset;
-    Vector2f currentPosition = chrom.getPosition();
+    Vector2f offset;
     Vector2f update = Vector2f(0, 0);
+    Vector2i locs;
+    Game game;
+    int changedUnit = 0;
+
     while (window.isOpen())
     {
         Event event;
@@ -75,38 +60,47 @@ int main()
             if (event.type == sf::Event::MouseButtonPressed) {
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     // Check if the mouse click is inside the sprite
-                    if (chrom.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
-                        dragging = true;
-                        offset = temp_chrom.getPosition() - sf::Vector2f(event.mouseButton.x, event.mouseButton.y);
+                    Vector2f mousePos = Vector2f(Mouse::getPosition(window));
+                    
+                    locs.x = mousePos.x / 50;
+                    locs.y = mousePos.y / 50;
+
+                    if (gameMap.tiles[locs.y][locs.x]->sprite.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                        if (gameMap.isAPlayerTile(locs.x, locs.y)) {
+                            changedUnit = gameMap.returnUnit(locs.x, locs.y);
+                            dragging = true;
+                            offset = gameMap.tiles[locs.y][locs.x]->sprite.getPosition() - Vector2f(event.mouseButton.x, event.mouseButton.y);
+                        }
+                        else {
+                            cout << "not a player unit" << endl;
+                        }
+                    }
+                    else {
+                        cout << "broke" << endl;
                     }
                 }
             }
 
-            if (event.type == sf::Event::MouseButtonReleased) {
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    sf::Vector2f mousePos = sf::Vector2f(sf::Mouse::getPosition(window));
+            if (event.type == Event::MouseButtonReleased) {
+                if (event.mouseButton.button == Mouse::Left) {
+                    Vector2f mousePos = Vector2f(Mouse::getPosition(window));
                     dragging = false;
-                    //correct position here
-                    cout << "x: " << mousePos.x << endl
-                        << "y: " << mousePos.y << endl;
 
-                //    cout << update.x << endl;
+                    gameMap.updatePositions(changedUnit, mousePos);
 
-                    chrom.setPosition(gameMap.correctPositions(update));
-                    temp_chrom.setPosition(chrom.getPosition());
-                    currentPosition = chrom.getPosition();
-                 //   cout << "\nhi" << endl;
+                    //fight thing
+                    if (gameMap.isEnemyAdjacent(mousePos.x / 50, mousePos.y / 50)) {
+                    //    gameMap.fight(changedUnit, gameMap.returnAdjacentUnit(mousePos.x / 50, mousePos.y / 50));
+                    }
+                    //pull up prompt window here probably
+
                 }
             }
         }
 
         if (dragging) {
-            // Update the sprite's position while dragging
-            sf::Vector2f mousePos = sf::Vector2f(sf::Mouse::getPosition(window));
-            update = chrom.getPosition();
-            //offset is distance
-            //mousePos is you know
-            
+            Vector2f mousePos = Vector2f(Mouse::getPosition(window));
+
             if (mousePos.x < 0) {
                 mousePos.x = 0;
             }
@@ -117,47 +111,28 @@ int main()
                 mousePos.y = 0;
             }
             if (mousePos.y > 1000) {
-                mousePos.y = 0;
+                mousePos.y = 1000;
             }
 
+            update = mousePos + offset;
 
-         //   cout << mousePos.x << endl;
-            
-        //    if ((currentPosition.x - 100.0) <= (event.mouseButton.x) && (event.mouseButton.x) <= (currentPosition.x + 100.0)){
-                //if ((currentPosition.y - 100.0) <= (event.mouseButton.y) && (event.mouseButton.y) <= (currentPosition.y + 100.0)) {
-                    update = mousePos + offset;
-             //       cout << "cock " << endl;
-            //        cout << "mouseButton: " << event.mouseButton.x << "currentPosition.x: " << (currentPosition.x - 50) << endl;
-                //}
-         //   }
-        //    cout << "event.mouseButton.x: " << event.mouseButton.x << " (chrom.getPosition().x-5: " << (chrom.getPosition().x - 5) << endl;
-            temp_chrom.setPosition(mousePos + offset);
-            
+            gameMap.tiles[locs.y][locs.x]->sprite.setPosition(update);
         }
 
-        
+
         window.clear();
-        
+
         if (dragging == true) {
-            window.draw(temp_chrom);
+            window.draw(gameMap.tiles[locs.y][locs.x]->sprite);
         }
 
-        //window.draw(shape);
-        
-        if (dragging == false) {
-            window.draw(chrom);
+        for (int i = 0; i < gameMap.gridLength; i++) {
+            for (int j = 0; j < gameMap.gridHeight; j++) {
+                window.draw(gameMap.tiles[i][j]->sprite);
+            }
         }
         window.display();
     }
 
     return 0;
 }
-
-struct Position {
-    int x;
-    int y;
-
-    bool operator==(Position & position) const{
-        return this->x == position.x && this->y == position.y;
-    }
-};

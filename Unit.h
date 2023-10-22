@@ -1,24 +1,58 @@
 #pragma once
 #include <iostream>
+#include <SFML/Graphics.hpp>
 
-class Unit
-{
+using namespace sf;
+using namespace std;
+
+class Unit{
 private:
-	short level;
+    short level;
     short hp;
-	short maxHP;
-	short str;
-	short mag;
-	short skl;
-	short spd;
-	short lck;
-	short def;
-	short res;
-	short mov;
+    short maxHP;
+    short str;
+    short mag;
+    short skl;
+    short spd;
+    short lck;
+    short def;
+    short res;
+    short mov;
 public:
+    
+    Vector2i pos;
+
+    Unit(int x, int y) {
+        level = 0;
+        hp = 0;
+        maxHP = 0;
+        str = 0;
+        mag = 0;
+        skl = 0;
+        spd = 0;
+        lck = 0;
+        def = 0;
+        res = 0;
+        mov = 0;
+        pos.x = x;
+        pos.y = y;
+    }
 	Unit() {
 		//meow 
 	}
+    Unit(Unit &t) {
+        level = t.level;
+        hp = t.hp;
+        maxHP = t.maxHP;
+        str = t.str;
+        mag = t.mag;
+        skl = t.skl;
+        spd = t.spd;
+        lck = t.lck;
+        def = t.def;
+        res = t.res;
+        mov = t.mov;
+    }
 	Unit(short lvl, short health, short strength, short magic, short skill,
 	short speed, short luck, short defense, short resistance, short move) {
 		level = lvl;
@@ -141,4 +175,3 @@ public:
         return false;
     }
 };
-

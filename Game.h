@@ -13,10 +13,7 @@ public:
 		//test
 	}
 
-	void fight() {
-		Unit one(1, 20, 7, 1, 8, 8, 5, 0, 1, 5);
-		Unit two(1, 19, 5, 1, 6, 7, 6, 0, 0, 6);
-
+	void fight(Unit one, Unit two) {
 		Skill test;
 		test.Sol(one, two);
 

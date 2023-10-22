@@ -1,77 +1,83 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "Tile.h"
+#include "Unit.h"
+#include <vector>
+
+#ifndef MAP_H
+#define MAP_H
+
 class Map
 {
 private:
-	Tile tiles[15][14];
+	vector<Vector2i> playerPositions;
+	vector<Vector2i> enemyPositions;
+	void setUpMap1();
+	void setUpPlayerPositions();
+	void setUpEnemyPositions();
+	void setUpTiles();
 public:
-	Map() {
-		//
-	}
+	vector<vector<Tile*>> tiles;
+	vector<Unit*> humanArmy;
+	vector<Unit*> enemyArmy;
+	int gridLength;
+	int gridHeight;
 
-	void setTileLocations(){
-		cout << 15 * 50<< endl;
-		for (int i = 0; i < 15; i++) { // left to right
-			for (int j = 0; j < 14; j++) { // up to down
-				tiles[i][j].setLeft(i*50);
-				tiles[i][j].setRight(tiles[i][j].getLeft() + 50);
-				tiles[i][j].setUp(j * 50);
-				tiles[i][j].setDown(tiles[i][j].getUp() + 50);
-				Vector2f center;
-				center.x = (tiles[i][j].getLeft() + tiles[i][j].getRight())/2;
-				center.y = (tiles[i][j].getUp() + tiles[i][j].getDown()) / 2;
-				tiles[i][j].setCenter(center);
-			}
+	string getPath() {
+		string currentFilePath(__FILE__);
+
+		string path = "";
+		size_t found = currentFilePath.find_last_of("\\/");
+		if (found != std::string::npos) {
+			std::string projectPath = currentFilePath.substr(0, found);
+			path = projectPath;
 		}
-	}
 
-	void printLocations() {
-		for (int i = 0; i < 15; i++) { // left to right
-			for (int j = 0; j < 14; j++) { // up to down
-				Vector2f center;
-				center = tiles[i][j].getCenter();
-				cout << "Tile: " << i << ", " << j << "\n Left: " << tiles[i][j].getLeft() <<
-					", Right: " << tiles[i][j].getRight() <<
-					"\n Up: " << tiles[i][j].getUp() <<
-					", Down: " << tiles[i][j].getDown() <<
-					"\n Center Point: " << center.x << ", " << center.y << endl << endl;
-			}
-		}
-	}
-
-	Vector2f correctPositions(Vector2f mousePos) {
-		// mousePos.x
-		// mousePos.y
-		// look through tiles and find closest?
-
-		cout << "update.x: " << mousePos.x << endl <<
-			"update.y: " << mousePos.y << endl;
-
-		int closestX = 0;
-		int closestY = 0;
-
-		int i=0, j=0;
-		for (i = 0; i < 15; i++) {
-			for (j = 0; j < 14; j++) {
-				if ((mousePos.x >= tiles[i][j].getLeft() && mousePos.x <= tiles[i][j].getRight()) &&
-					(mousePos.y >= tiles[i][j].getUp() && mousePos.y <= tiles[i][j].getDown())) {
-				//	cout << "i: " << i <<", j: "<<j<< endl;
-				//	cout << "left: " << tiles[i][j].getLeft() << ", right: " << tiles[i][j].getRight() << endl;
-				//	cout << "mouse.x: " << mousePos.x << ", mouse.right: " << mousePos.y << endl;
-					closestX = i;
-					closestY = j;
-				}
+		for (size_t i = 0; i < path.length(); ++i) {
+			if (path[i] == '\\') {
+				path[i] = '/';
 			}
 		}
 
-		Vector2f newCenter = tiles[closestX][closestY].getCenter();
+		size_t lastSlash = path.find_last_of('/');
 
-		cout << "closestX: " << closestX << endl<<
-			"closestY: "<<closestY<<endl<<
-			"tile center : "<<newCenter.x<<", "<<newCenter.y<<endl;
+		if (lastSlash != string::npos) {
+			path = path.substr(0, lastSlash + 1);
+		}
 
-		return tiles[closestX][closestY].getCenter();
+		return path;
 	}
+
+	Map();
+
+
+
+	vector<vector<string>> map1 = { 
+	{ "g","g","g","g","g","g","g","g","g","g","g","g","g","g","g" },
+	{ "g","g","g","g","g","g","g","g","g","g","g","g","g","g","g" },
+	{ "w","w","w","w","w","w","g","g","g","w","w","w","w","w","w" },
+	{ "w","w","w","w","w","w","g","g","g","w","w","w","w","w","w" },
+	{ "w","w","w","w","w","w","g","g","g","w","w","w","w","w","w" },
+	{ "g","g","g","g","g","g","g","g","g","g","w","w","g","g","g" },
+	{ "g","g","g","g","g","g","g","g","g","g","w","w","g","g","g" },
+	{ "g","g","n","n","g","g","n","n","g","g","g","g","g","g","g" },
+	{ "g","g","g","g","g","g","g","g","g","g","g","g","g","g","g" },
+	{ "g","g","g","g","g","g","g","g","g","g","w","w","g","g","g" },
+	{ "g","g","n","n","g","g","n","n","g","g","w","w","w","g","g" },
+	{ "g","g","g","g","g","g","g","g","g","g","w","w","w","g","g" },
+	{ "g","g","g","g","g","g","g","g","g","g","w","w","g","g","g" },
+	{ "g","g","g","g","g","g","g","g","g","g","w","w","g","g","g" }, 
+	};
+
+	bool isAPlayerTile(int x, int y);
+	bool isAEnemyTile(int x, int y);
+	bool isEnemyAdjacent(int x, int y);
+	
+	int returnUnit(int x, int y);
+	int returnAdjacentUnit(int x, int y);
+
+	void updatePositions(int selected, Vector2f mousePos);
+//	void fight(int player, int enemy);
 };
 
+#endif
