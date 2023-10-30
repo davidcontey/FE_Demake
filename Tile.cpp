@@ -1,5 +1,10 @@
 #include "Tile.h"
 
+Tile::Tile(unsigned x, unsigned y) {
+	pos.x = x;
+	pos.y = y;
+}
+
 Tile::Tile(string texName, float x, float y, bool pass) {
 	if (!setTileSprite(texName)) {
 		return;

@@ -3,6 +3,8 @@
 #include "Tile.h"
 #include "Unit.h"
 #include <vector>
+#include <queue>
+#include <set>
 
 #ifndef MAP_H
 #define MAP_H
@@ -77,7 +79,9 @@ public:
 	int returnAdjacentUnit(int x, int y);
 
 	void updatePositions(int selected, Vector2f mousePos);
-//	void fight(int player, int enemy);
+	void fight(int player, int enemy);
+
+	vector<Vector2i> possibleMoves(int unitID);
 };
 
 #endif

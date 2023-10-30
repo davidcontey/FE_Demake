@@ -6,9 +6,103 @@
 #include "Unit.h"
 #include "Tile.h"
 #include "Game.h"
+#include "Node.h"
+#include <cmath>
 
 using namespace sf;
 using namespace std;
+
+vector<Vector2i> astar(vector<vector<int>>& map, Vector2i& start, Vector2i& end) {
+    Node* startNode = new Node(nullptr, start);
+    startNode->g = startNode->h = startNode->f = 0;
+    Node* endNode = new Node(nullptr, end);
+    endNode->g = endNode->h = endNode->f = 0;
+
+    vector<Node*> openList;
+    vector<Node*> closedList;
+
+    openList.push_back(startNode);
+
+    while (!openList.empty()) {
+        Node* currentNode = openList[0];
+        int currentIndex = 0;
+        for (int i = 0; i < openList.size(); i++) {
+            if (openList[i]->f < currentNode->f) {
+                currentNode = openList[i];
+                currentIndex = i;
+            }
+        }
+
+        openList.erase(openList.begin() + currentIndex);
+        closedList.push_back(currentNode);
+
+        if (currentNode->position.x == 7 && currentNode->position.y == 6) {
+            cout << "meow" << endl;
+        }
+
+        if (*currentNode == *endNode) {
+            vector<Vector2i> path;
+            Node* current = currentNode;
+            while (current != nullptr) {
+                path.push_back(current->position);
+                current = current->parent;
+            }
+            reverse(path.begin(), path.end());
+            return path;
+        }
+
+        vector<Vector2i> newPositions = { {0, -1}, {0, 1}, {-1, 0}, {1, 0} };
+
+        vector<Node*> children;
+
+        for (const auto& newPosition : newPositions) {
+            int newX = currentNode->position.x + newPosition.x;
+            int newY = currentNode->position.y + newPosition.y;
+            if (newX < 0 || newX >= map.size() || newY < 0 || newY >= map[newX].size()) {
+                continue;
+            }
+            if (map[newX][newY] != 0) {
+                continue;
+            }
+            Vector2i newInfo = { newX, newY };
+            Node* newNode = new Node(currentNode, newInfo);
+            children.push_back(newNode);
+        }
+
+        for (Node* child : children) {
+            bool inClosedList = false;
+            for (Node* closedChild : closedList) {
+                if (*child == *closedChild) {
+                    inClosedList = true;
+                    break;
+                }
+            }
+
+            if (inClosedList) {
+                continue;
+            }
+
+            child->g = currentNode->g + 1;
+            child->h = (child->position.x - endNode->position.x) * (child->position.x - endNode->position.x) +
+                (child->position.y - endNode->position.y) * (child->position.y - endNode->position.y);
+            child->f = child->g + child->h;
+
+            bool inOpenList = false;
+            for (Node* openNode : openList) {
+                if (*child == *openNode && child->g > openNode->g) {
+                    inOpenList = true;
+                    break;
+                }
+            }
+
+            if (!inOpenList) {
+                openList.push_back(child);
+            }
+        }
+    }
+    
+    return vector<Vector2i>();
+}
 
 string getPath() {
     string currentFilePath(__FILE__);
@@ -37,6 +131,38 @@ string getPath() {
 
 int main()
 {
+    std::vector<std::vector<int>> map = {
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1 },
+        { 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1 },
+        { 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0 },
+        { 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0 },
+        { 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0 }
+    };
+
+    Vector2i start = { 12, 0 };
+    Vector2i end = { 9, 3 };
+
+    vector<Vector2i> path = astar(map, start, end);
+
+    for (const auto& point : path) {
+        cout << "(" << point.x << ", " << point.y << ") ";
+    }
+    cout << endl;
+
+
+
+
+
+
     RenderWindow window(VideoMode(750, 700), "Fire Emblem");
 
     Map gameMap = Map();
@@ -68,6 +194,7 @@ int main()
                     if (gameMap.tiles[locs.y][locs.x]->sprite.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
                         if (gameMap.isAPlayerTile(locs.x, locs.y)) {
                             changedUnit = gameMap.returnUnit(locs.x, locs.y);
+                            vector<Vector2i> validMoves = gameMap.possibleMoves(changedUnit);
                             dragging = true;
                             offset = gameMap.tiles[locs.y][locs.x]->sprite.getPosition() - Vector2f(event.mouseButton.x, event.mouseButton.y);
                         }

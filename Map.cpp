@@ -53,7 +53,6 @@ void Map::setUpTiles() {
 		}
 		tiles.push_back(row);	
 	}
-	cout << tiles.size();
 }
 
 bool Map::isAPlayerTile(int x, int y) {
@@ -143,6 +142,77 @@ void Map::updatePositions(int selected, Vector2f mousePos) {
 	setUpTiles();
 }
 
-//void fight(int player, int enemy) {
-//
-//}
+void Map::fight(int player, int enemy) {
+	Game game;
+	game.fight(*humanArmy[player], *enemyArmy[enemy]);
+}
+
+vector<Vector2i> Map::possibleMoves(int unitID) {
+	// Get the current unit's position
+	int startX = humanArmy[unitID]->pos.x;
+	int startY = humanArmy[unitID]->pos.y;
+
+	int endX = 1;
+	int endY = 7;
+	vector<Vector2i> validMoves;
+
+	int dx[] = { 0, 0, 1, -1 };
+	int dy[] = { 1, -1, 0, 0 };
+
+	for (int i = 0; i < 4; i++) {
+		int newX = startX + dx[i];
+		int newY = startY + dy[i];
+
+		if (newX >= 0 && newX < gridLength && newY >= 0 && newY < gridHeight && tiles[newX][newY]->passable) {
+			int distance = abs(newX - startX) + abs(newY - startY);
+			if (distance <= 6) {
+				validMoves.push_back({ newX, newY });
+			}
+		}
+	}
+
+	//for (int i = 0; i < gridLength; i++) {
+	//	for (int j = 0; j < gridHeight; j++) {
+	//		int dist = abs(i - startX) + abs(j - startY);
+	//		if (dist <= 6) { //change this to human thing later
+	//			/*bool isPathBlocked = false;
+	//			for (int x = min(i, startX); x <= max(i, startX); x++) {
+	//				for (int y = min(j, startY); y <= max(j, startY); y++) {
+	//					if (map1[x][y] == "w" || map1[x][y]=="n") {
+	//						isPathBlocked = true;
+	//						break;
+	//					}
+	//				}
+	//				if (isPathBlocked) break;
+	//			}*/
+
+	//		//	if (!isPathBlocked) {
+	//				validMoves.push_back({ j,i });
+	//		//	}
+	//		}
+	//	}
+	//}
+
+	for (int i = 0; i < validMoves.size(); i++) {
+		cout << "x: " << validMoves[i].x << ", y:" << validMoves[i].y <<", is a valid move." << endl;
+	}
+
+
+
+
+
+	//gotta pop out the invalid ones
+
+	// we start at startX, startY
+	// check in both directions
+	// find if you can get to the position in the characters move
+	// ? https://www.geeksforgeeks.org/depth-first-traversal-dfs-on-a-2d-array/
+	// https://www.geeksforgeeks.org/calculate-the-manhattan-distance-between-two-cells-of-given-2d-array/
+
+	// Possible moves (up, down, left, right)
+	
+
+
+
+	return validMoves;
+}

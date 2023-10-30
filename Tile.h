@@ -20,6 +20,7 @@ public:
     Sprite sprite;
     Tile(string, float, float, bool);
     Tile();
+    Tile(unsigned, unsigned);
     bool setTileSprite(string);
 };
 
