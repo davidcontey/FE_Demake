@@ -15,10 +15,14 @@ void Map::setUpMap1() {
 
 void Map::setUpPlayerPositions() {
 	humanArmy.clear();
-	humanArmy.push_back(new Unit(0, 12));
-	humanArmy.push_back(new Unit(2, 12));
-	humanArmy.push_back(new Unit(1, 13));
-	humanArmy.push_back(new Unit(3, 13));
+
+	/*Unit(int x, int y, short lvl, short health, short strength, short magic, short skill,
+		short speed, short luck, short defense, short resistance, short move)*/
+
+	humanArmy.push_back(new Unit(0, 12, "Lissa",1,17,1,5,4,4,8,3,4,5));
+	humanArmy.push_back(new Unit(2, 12, "Chrom", 1, 20,7,1,8,8,5,7,1,5));
+	humanArmy.push_back(new Unit(1, 13, "Frederick", 1,28,13,2,12,10,6,14,3,7));
+	humanArmy.push_back(new Unit(3, 13, "Robin", 1,19,6,5,5,8,2,6,4,5));
 }
 
 void Map::setUpEnemyPositions() {
@@ -72,6 +76,16 @@ bool Map::isAEnemyTile(int x, int y) {
 	}
 	return false;
 }
+
+bool Map::isAValidMove(int x, int y, vector<Vector2i> validMoves) {
+	for (int i = 0; i < validMoves.size(); i++) {
+		if (y == validMoves[i].x && x == validMoves[i].y) {
+			return true;
+		}
+	}
+	return false;
+}
+
 
 bool Map::isEnemyAdjacent(int x, int y) {
 	cout << endl<<x << endl;
@@ -142,77 +156,172 @@ void Map::updatePositions(int selected, Vector2f mousePos) {
 	setUpTiles();
 }
 
+void Map::updatePositions(int selected, Vector2i locs) {
+	humanArmy[selected]->pos.x = locs.x;
+	humanArmy[selected]->pos.y = locs.y;
+	setUpTiles();
+}
+
 void Map::fight(int player, int enemy) {
 	Game game;
 	game.fight(*humanArmy[player], *enemyArmy[enemy]);
 }
+
+//bool Map::isMoveValid(int unitID, Vector2f mousePos) {
+//	Vector2i loc;
+//	loc.y = mousePos.x / 50;
+//	loc.x = mousePos.y / 50;
+//	vector<vector<int>> map = turnMapToInts();
+//	Vector2i swappedLocHuman = { humanArmy[unitID]->pos.y,  humanArmy[unitID]->pos.x };
+//
+//	cout << "x: " << swappedLocHuman.x << ", y: " << swappedLocHuman.y  << endl;
+//	cout << "loc x: " << loc.x << ", loc y: " << loc.y << endl;
+//
+////	vector<Vector2i> path = astar(map, swappedLocHuman, loc);
+//	for (const auto& point : path) {
+//		cout << "(" << point.x << ", " << point.y << ") ";
+//	}
+//	if (path.size()-1 > 6) {
+//		cout << "x: " << loc.x << ", y: " << loc.y << " is illegal location" << endl;
+//		return false;
+//	}
+//	return true;
+//
+//}
 
 vector<Vector2i> Map::possibleMoves(int unitID) {
 	// Get the current unit's position
 	int startX = humanArmy[unitID]->pos.x;
 	int startY = humanArmy[unitID]->pos.y;
 
-	int endX = 1;
-	int endY = 7;
 	vector<Vector2i> validMoves;
+	vector<Vector2i> finalMoves;
+	vector<vector<int>> map = turnMapToInts();
 
-	int dx[] = { 0, 0, 1, -1 };
-	int dy[] = { 1, -1, 0, 0 };
-
-	for (int i = 0; i < 4; i++) {
-		int newX = startX + dx[i];
-		int newY = startY + dy[i];
-
-		if (newX >= 0 && newX < gridLength && newY >= 0 && newY < gridHeight && tiles[newX][newY]->passable) {
-			int distance = abs(newX - startX) + abs(newY - startY);
-			if (distance <= 6) {
-				validMoves.push_back({ newX, newY });
+	for (int i = 0; i < gridLength; i++) {
+		for (int j = 0; j < gridHeight; j++) {
+			int path = possiblePath(15, 14, map, humanArmy[unitID]->pos.x, humanArmy[unitID]->pos.y, j, i);
+			if (path <= humanArmy[unitID]->getMov() && path >= 0) { // change the 7 to character move
+				{
+					finalMoves.push_back({i,j});
+				}
 			}
 		}
 	}
 
-	//for (int i = 0; i < gridLength; i++) {
-	//	for (int j = 0; j < gridHeight; j++) {
-	//		int dist = abs(i - startX) + abs(j - startY);
-	//		if (dist <= 6) { //change this to human thing later
-	//			/*bool isPathBlocked = false;
-	//			for (int x = min(i, startX); x <= max(i, startX); x++) {
-	//				for (int y = min(j, startY); y <= max(j, startY); y++) {
-	//					if (map1[x][y] == "w" || map1[x][y]=="n") {
-	//						isPathBlocked = true;
-	//						break;
-	//					}
-	//				}
-	//				if (isPathBlocked) break;
-	//			}*/
+	cout << "Valid moves for " << humanArmy[unitID]->getName() << endl;
+	for (int i = 0; i < finalMoves.size(); i++) {
+		cout << "( " << finalMoves[i].x << "," << finalMoves[i].y << " ) is a valid move"<<endl;
+	}
+	return finalMoves;
+}
 
-	//		//	if (!isPathBlocked) {
-	//				validMoves.push_back({ j,i });
-	//		//	}
-	//		}
-	//	}
-	//}
+vector<vector<string>> Map::getMapWithEnemies() {
+	vector<vector<string>> map;
+	
+	return map;
+}
 
-	for (int i = 0; i < validMoves.size(); i++) {
-		cout << "x: " << validMoves[i].x << ", y:" << validMoves[i].y <<", is a valid move." << endl;
+vector<vector<int>> Map::turnMapToInts() {
+	vector<vector<int>> map;
+	bool isEnemyTile = false;
+	for (int i = 0; i < gridHeight; i++) {
+		vector<int> row;
+		for (int j = 0; j < gridLength; j++) {
+			isEnemyTile = isAEnemyTile(i, j);
+			if (map1[j][i] == "g" && isEnemyTile) row.push_back(1);
+			else if (map1[j][i] == "g") row.push_back(0);
+			if (map1[j][i] == "w") row.push_back(1);
+			if (map1[j][i] == "n") row.push_back(1);
+		}
+		map.push_back(row);
+	}
+
+	return map;
+}
+
+int Map::possiblePath(int n, int m, vector<vector<int>>& grid, int start_x, int start_y, int end_x, int end_y)
+{
+	// Check if the source or destination cell is blocked
+	if (grid[start_x][start_y] == 1 || grid[end_x][end_y] == 1) {
+		// Return -1 to indicate no path
+		return -1;
+	}
+
+	// Create a queue to store the cells to explore
+	queue<Vector2i> q;
+
+	// Add the source cell to the queue and mark its distance as 0
+	q.push({ start_x, start_y });
+
+	// Define two arrays to represent the four directions of movement
+	int dx[4] = { -1, 0, 1, 0 };
+	int dy[4] = { 0, 1, 0, -1 };
+
+	// Create a 2D vector to store the distance of each cell from the source
+	vector<vector<int>> dis(n, vector<int>(m, -1));
+
+	// Set the distance of the source cell as 0
+	dis[start_x][start_y] = 0;
+
+	// Loop until the queue is empty or the destination is reached
+	while (!q.empty()) {
+		Vector2i p = q.front();
+		q.pop();
+
+		for (int i = 0; i < 4; i++) {
+			int x = p.x + dx[i];
+			int y = p.y + dy[i];
+
+			if (x >= 0 && x < n && y >= 0 && y < m && dis[x][y] == -1) {
+				if (grid[x][y] == 0) {
+					dis[x][y] = dis[p.x][p.y] + 1;
+					q.push({ x, y });
+				}
+			}
+		}
+	}
+
+	return dis[end_x][end_y];
+}
+
+void Map::showValidMoves(vector<Vector2i> validMoves, int unitID) {
+//	vector<vector<string>> newMap = map1;
+	tiles.clear();
+	for (int i = 0; i < gridLength; i++) {
+		vector<Tile*> row;
+		for (int j = 0; j < gridHeight; j++) {
+			if (map1[i][j] == "g") {
+				if (isAPlayerTile(j, i) && humanArmy[unitID]->pos.x != i && humanArmy[unitID]->pos.y !=j) {
+					row.push_back(new Tile(getPath() + "ct1.png", j * 50, i * 50, true)); 
+					continue;
+				}
+				else if (isAEnemyTile(j, i)) {
+					row.push_back(new Tile(getPath() + "ct1.png", j * 50, i * 50, true));
+					continue;
+				}
+				else if (isAValidMove(j, i, validMoves)) {
+					row.push_back(new Tile(getPath() + "validMoveBlue.png", j * 50, i * 50, true));
+					continue;
+				}
+				else { 
+					row.push_back(new Tile(getPath() + "ground.png", j * 50, i * 50, true)); 
+					continue;
+				}
+			}
+			if (map1[i][j] == "w") { 
+				row.push_back(new Tile(getPath() + "water.png", j * 50, i * 50, true)); 
+				continue;
+			}
+			if (map1[i][j] == "n") { 
+				row.push_back(new Tile(getPath() + "wall.png", j * 50, i * 50, true)); 
+				continue;
+			}
+
+		}
+		tiles.push_back(row);
 	}
 
 
-
-
-
-	//gotta pop out the invalid ones
-
-	// we start at startX, startY
-	// check in both directions
-	// find if you can get to the position in the characters move
-	// ? https://www.geeksforgeeks.org/depth-first-traversal-dfs-on-a-2d-array/
-	// https://www.geeksforgeeks.org/calculate-the-manhattan-distance-between-two-cells-of-given-2d-array/
-
-	// Possible moves (up, down, left, right)
-	
-
-
-
-	return validMoves;
+	//else if (i==validMoves[x].x)
 }

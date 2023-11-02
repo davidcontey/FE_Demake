@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include "Tile.h"
 #include "Unit.h"
+#include "Node.h"
 #include <vector>
 #include <queue>
 #include <set>
@@ -73,15 +74,22 @@ public:
 
 	bool isAPlayerTile(int x, int y);
 	bool isAEnemyTile(int x, int y);
+	bool isAValidMove(int x, int y, vector<Vector2i> validMoves);
 	bool isEnemyAdjacent(int x, int y);
 	
 	int returnUnit(int x, int y);
 	int returnAdjacentUnit(int x, int y);
 
 	void updatePositions(int selected, Vector2f mousePos);
+	void updatePositions(int selected, Vector2i locs);
 	void fight(int player, int enemy);
 
 	vector<Vector2i> possibleMoves(int unitID);
+	bool isMoveValid(int unitID, Vector2f mousePos);
+	vector<vector<string>> getMapWithEnemies();
+	vector<vector<int>> turnMapToInts();
+	int possiblePath(int n, int m, vector<vector<int>>& grid, int start_x, int start_y, int end_x, int end_y);
+	void showValidMoves(vector<Vector2i> validMoves, int unitID);
 };
 
 #endif

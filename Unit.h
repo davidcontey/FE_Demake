@@ -7,6 +7,7 @@ using namespace std;
 
 class Unit{
 private:
+    string name;
     short level;
     short hp;
     short maxHP;
@@ -37,6 +38,25 @@ public:
         pos.x = x;
         pos.y = y;
     }
+
+    Unit(int x, int y, string nm, short lvl, short health, short strength, short magic, short skill,
+        short speed, short luck, short defense, short resistance, short move) {
+        name = nm;
+        level = lvl;
+        hp = health;
+        maxHP = health;
+        str = strength;
+        mag = magic;
+        skl = skill;
+        spd = speed;
+        lck = luck;
+        def = defense;
+        res = resistance;
+        mov = move;
+        pos.x = x;
+        pos.y = y;
+    }
+
 	Unit() {
 		//meow 
 	}
@@ -70,6 +90,10 @@ public:
 
     short getLevel() const {
         return level;
+    }
+
+    string getName() const {
+        return name;
     }
 
     short getHP() const {
@@ -115,6 +139,10 @@ public:
     // Setter functions
     void setLevel(short newLevel) {
         level = newLevel;
+    }
+
+    void setName(string newName) {
+        name = newName;
     }
 
     void setHP(short newHp) {
