@@ -167,28 +167,6 @@ void Map::fight(int player, int enemy) {
 	game.fight(*humanArmy[player], *enemyArmy[enemy]);
 }
 
-//bool Map::isMoveValid(int unitID, Vector2f mousePos) {
-//	Vector2i loc;
-//	loc.y = mousePos.x / 50;
-//	loc.x = mousePos.y / 50;
-//	vector<vector<int>> map = turnMapToInts();
-//	Vector2i swappedLocHuman = { humanArmy[unitID]->pos.y,  humanArmy[unitID]->pos.x };
-//
-//	cout << "x: " << swappedLocHuman.x << ", y: " << swappedLocHuman.y  << endl;
-//	cout << "loc x: " << loc.x << ", loc y: " << loc.y << endl;
-//
-////	vector<Vector2i> path = astar(map, swappedLocHuman, loc);
-//	for (const auto& point : path) {
-//		cout << "(" << point.x << ", " << point.y << ") ";
-//	}
-//	if (path.size()-1 > 6) {
-//		cout << "x: " << loc.x << ", y: " << loc.y << " is illegal location" << endl;
-//		return false;
-//	}
-//	return true;
-//
-//}
-
 vector<Vector2i> Map::possibleMoves(int unitID) {
 	// Get the current unit's position
 	int startX = humanArmy[unitID]->pos.x;
@@ -201,18 +179,14 @@ vector<Vector2i> Map::possibleMoves(int unitID) {
 	for (int i = 0; i < gridLength; i++) {
 		for (int j = 0; j < gridHeight; j++) {
 			int path = possiblePath(15, 14, map, humanArmy[unitID]->pos.x, humanArmy[unitID]->pos.y, j, i);
-			if (path <= humanArmy[unitID]->getMov() && path >= 0) { // change the 7 to character move
-				{
-					finalMoves.push_back({i,j});
-				}
-			}
+			if (path <= humanArmy[unitID]->getMov() && path >= 0) finalMoves.push_back({i,j});
 		}
 	}
 
-	cout << "Valid moves for " << humanArmy[unitID]->getName() << endl;
+	/*cout << "Valid moves for " << humanArmy[unitID]->getName() << endl;
 	for (int i = 0; i < finalMoves.size(); i++) {
 		cout << "( " << finalMoves[i].x << "," << finalMoves[i].y << " ) is a valid move"<<endl;
-	}
+	}*/
 	return finalMoves;
 }
 
@@ -321,7 +295,4 @@ void Map::showValidMoves(vector<Vector2i> validMoves, int unitID) {
 		}
 		tiles.push_back(row);
 	}
-
-
-	//else if (i==validMoves[x].x)
 }
