@@ -6,7 +6,6 @@
 #include "Unit.h"
 #include "Tile.h"
 #include "Game.h"
-#include "Node.h"
 #include "Menu.h"
 #include <cmath>
 
@@ -57,6 +56,7 @@ int main()
     vector<Vector2i> possibleMoves;
     Game game;
     int changedUnit = 0;
+    int enemy = -1;
 
     while (window.isOpen())
     {
@@ -67,7 +67,7 @@ int main()
             }
 
             // Handle mouse events
-            if (showMenu==false) {
+            if (!showMenu) {
                 if (event.type == Event::MouseButtonPressed) {
                     if (event.mouseButton.button == Mouse::Left) {
                         // Check if the mouse click is inside the sprite
@@ -104,6 +104,9 @@ int main()
                         {
                             cout << "move valid" << endl;
                             gameMap.updatePositions(changedUnit, mousePos);
+
+                            enemy = gameMap.returnAdjacentUnit(mousePos.x/50, mousePos.y/50);
+
                             showMenu = true;
                         }
                         else {
@@ -120,37 +123,49 @@ int main()
                     }
                 }
             }
-            else if (showMenu==true) {
+            else if (showMenu) {
                 if (Mouse::isButtonPressed(Mouse::Right)) {
                     Vector2i mousePosi = Mouse::getPosition(window);
-                    FloatRect menuItemBounds = menu.getItem1Bounds();
-
-                    cout << "meow" << endl;
+                    FloatRect menuItemBounds = menu.getAttackBoxBounds();
 
                     if (menuItemBounds.contains(static_cast<Vector2f>(mousePosi))) {
-                        // what ever this does
+
+                        if (enemy != -1) {
+                            gameMap.fight(changedUnit, enemy);
+                        }
+
                         showMenu = false;
-                        cout << "menu is closed" << endl;
+                        cout << "attack box" << endl;
                     }
 
-                    menuItemBounds = menu.getItem2Bounds();
+                    menuItemBounds = menu.getItemBoxBounds();
                     if (menuItemBounds.contains(static_cast<Vector2f>(mousePosi))) {
                         // what ever this does
                         showMenu = false;
+                        cout << "item box" << endl;
+                    }
+
+                    menuItemBounds = menu.getReturnBoxBounds();
+                    if (menuItemBounds.contains(static_cast<Vector2f>(mousePosi))) {
+                        // what ever this does
+                        showMenu = false;
+                        cout << "return box" << endl;
+                        gameMap.updatePositions(changedUnit, original);
+                    }
+
+                    menuItemBounds = menu.getWaitBoxBounds();
+                    if (menuItemBounds.contains(static_cast<Vector2f>(mousePosi))) {
+                        // what ever this does
+                        showMenu = false;
+                        gameMap.humanArmy[changedUnit]->setTurn(false);
+                        cout << "wait box" << endl;
                     }
                 }
             }
         }
-        
-
-        
-
 
         window.clear();
 
-        if (dragging) {
-            window.draw(gameMap.tiles[locs.y][locs.x]->sprite);
-        }
 
         for (int i = 0; i < gameMap.gridLength; i++) {
             for (int j = 0; j < gameMap.gridHeight; j++) {
@@ -159,7 +174,7 @@ int main()
         }
 
         if (dragging) {
-
+            window.draw(gameMap.tiles[locs.y][locs.x]->sprite);
             // TODO: this creates such a dumb problem that at its core is very low on the prio list 
             // please fix later
 
@@ -184,7 +199,7 @@ int main()
             gameMap.tiles[locs.y][locs.x]->sprite.setPosition(update);
         }
 
-        if (showMenu==true) menu.draw(window, getPath());
+        if (showMenu) menu.draw(window, getPath());
 
         window.display();
     }

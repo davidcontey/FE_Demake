@@ -19,8 +19,8 @@ private:
     short def;
     short res;
     short mov;
+    bool turn;
 public:
-    
     Vector2i pos;
 
     Unit(int x, int y) {
@@ -136,6 +136,10 @@ public:
         return mov;
     }
 
+    bool isTurn() const {
+        return turn;
+    }
+
     // Setter functions
     void setLevel(short newLevel) {
         level = newLevel;
@@ -185,6 +189,10 @@ public:
         mov = newMov;
     }
 
+    void setTurn(bool newTurn) {
+        turn = newTurn;
+    }
+
     void takeDamage(int damage) {
         hp -= damage;
         if (hp < 0) hp = 0;
@@ -197,9 +205,11 @@ public:
 
     bool checkDeath() {
         if (hp <= 0) {
-            std::cout << "Unit is dead." << std::endl;
+            cout << "Unit is dead." << std::endl;
             return true;
         }
         return false;
     }
+
+    string attack(Unit& enemy);
 };

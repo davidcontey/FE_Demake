@@ -2,7 +2,6 @@
 #include <SFML/Graphics.hpp>
 #include "Tile.h"
 #include "Unit.h"
-#include "Node.h"
 #include <vector>
 #include <queue>
 #include <set>

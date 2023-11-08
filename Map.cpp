@@ -26,18 +26,23 @@ void Map::setUpPlayerPositions() {
 }
 
 void Map::setUpEnemyPositions() {
+	// https://fireemblemwiki.org/wiki/The_Verge_of_History#Enemy_data
+	// mage has wind
+	// myrmidon has bronze sword
+	// barb has bronze axe
+	// garrick has hand axe
 	enemyArmy.clear();
-	enemyArmy.push_back(new Unit(7, 0));
-	enemyArmy.push_back(new Unit(5, 1));
-	enemyArmy.push_back(new Unit(7, 1));
-	enemyArmy.push_back(new Unit(9, 1));
-	enemyArmy.push_back(new Unit(6, 2));
-	enemyArmy.push_back(new Unit(8, 2));
-	enemyArmy.push_back(new Unit(9, 5));
-	enemyArmy.push_back(new Unit(0, 7));
-	enemyArmy.push_back(new Unit(6, 8));
-	enemyArmy.push_back(new Unit(3, 9));
-	enemyArmy.push_back(new Unit(8, 11));
+	enemyArmy.push_back(new Unit(7, 0, "Garrick",3, 20,8,0,5,7,2,3,0,0));
+	enemyArmy.push_back(new Unit(5, 1, "Ruffian Barbarian #1",1,16,5,0,2,4,2,1,0,5));
+	enemyArmy.push_back(new Unit(7, 1, "Ruffian Mage #1",1,14,0,4,3,4,3,0,1,5));
+	enemyArmy.push_back(new Unit(9, 1, "Ruffian Barbarian #2", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5));
+	enemyArmy.push_back(new Unit(6, 2, "Ruffian Myrmidon #1", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5));
+	enemyArmy.push_back(new Unit(8, 2, "Ruffian Myrmidon #2", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5));
+	enemyArmy.push_back(new Unit(9, 5, "Ruffian Mage #2", 1, 14, 0, 4, 3, 4, 3, 0, 1, 5));
+	enemyArmy.push_back(new Unit(0, 7, "Ruffian Barbarian #3", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5));
+	enemyArmy.push_back(new Unit(6, 8, "Ruffian Barbarian #4", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5));
+	enemyArmy.push_back(new Unit(3, 9, "Ruffian Myrmidon #3", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5));
+	enemyArmy.push_back(new Unit(8, 11, "Ruffian Myrmidon #4", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5));
 }
 
 //this function will look like hell, im sure you can make it look nice somehow
@@ -133,6 +138,8 @@ int Map::returnAdjacentUnit(int x, int y) {
 			return i;
 		}
 	}
+
+	return -1;
 }
 
 //used for movement purposes
@@ -164,7 +171,24 @@ void Map::updatePositions(int selected, Vector2i locs) {
 
 void Map::fight(int player, int enemy) {
 	Game game;
-	game.fight(*humanArmy[player], *enemyArmy[enemy]);
+//	game.fight(*humanArmy[player], *enemyArmy[enemy]);
+	int attacks = 1;
+	string outcome = "";
+	if (humanArmy[player]->getSpd() - enemyArmy[enemy]->getSpd() >= 5) {
+		attacks = 2;
+	}
+//	cout << "Enemy health before attack: " << enemyArmy[enemy]->getHP() << endl;
+	outcome = humanArmy[player]->attack(*enemyArmy[enemy]);
+	outcome += enemyArmy[enemy]->attack(*humanArmy[player]);
+	if (attacks == 2) {
+		cout << "2x attack" << endl;
+		outcome += humanArmy[player]->attack(*enemyArmy[enemy]);
+	}
+//	cout << "Enemy health after attack: "<<enemyArmy[enemy]->getHP() << endl;
+	cout << outcome << endl;
+
+
+	//should return outcome and print in menu
 }
 
 vector<Vector2i> Map::possibleMoves(int unitID) {

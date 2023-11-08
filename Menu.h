@@ -18,47 +18,79 @@ public:
 			// nothing
 		}
 
-		menuItem1.setSize(Vector2f(200, 40));
-		menuItem1.setFillColor(Color::White);
-		menuItem1.setPosition(300, 200);
-		menuItem1.setOutlineColor(Color(0, 0, 0));
-		menuItem1.setOutlineThickness(1);
+		attackBox.setSize(Vector2f(200, 40));
+		attackBox.setFillColor(Color::White);
+		attackBox.setPosition(300, 200);
+		attackBox.setOutlineColor(Color(0, 0, 0));
+		attackBox.setOutlineThickness(1);
 
-		menuItem2.setSize(Vector2f(200, 40));
-		menuItem2.setFillColor(Color::White);
-		menuItem2.setPosition(300, 250);
-		menuItem2.setOutlineColor(Color(0, 0, 0));
-		menuItem2.setOutlineThickness(1);
+		itemBox.setSize(Vector2f(200, 40));
+		itemBox.setFillColor(Color::White);
+		itemBox.setPosition(300, 250);
+		itemBox.setOutlineColor(Color(0, 0, 0));
+		itemBox.setOutlineThickness(1);
 
+		returnBox.setSize(Vector2f(200, 40));
+		returnBox.setFillColor(Color::White);
+		returnBox.setPosition(300, 300);
+		returnBox.setOutlineColor(Color(0, 0, 0));
+		returnBox.setOutlineThickness(1);
 
-		text1.setString("Items");
-		text1.setFont(font);
-		text1.setCharacterSize(24);
-		text1.setFillColor(Color::Black);
-		text1.setPosition(310, 205);
+		waitBox.setSize(Vector2f(200, 40));
+		waitBox.setFillColor(Color::White);
+		waitBox.setPosition(300, 350);
+		waitBox.setOutlineColor(Color(0, 0, 0));
+		waitBox.setOutlineThickness(1);
 
+		attackText.setString("Attack");
+		attackText.setFont(font);
+		attackText.setCharacterSize(24);
+		attackText.setFillColor(Color::Black);
+		attackText.setPosition(310, 205);
 
-		text2.setString("Wait");
-		text2.setFont(font);
-		text2.setCharacterSize(24);
-		text2.setFillColor(Color::Black);
-		text2.setPosition(310, 255);
+		itemText.setString("Items");
+		itemText.setFont(font);
+		itemText.setCharacterSize(24);
+		itemText.setFillColor(Color::Black);
+		itemText.setPosition(310, 255);
 
-		window.draw(menuItem1);
-		window.draw(menuItem2);
-		window.draw(text1);
-		window.draw(text2);
+		returnText.setString("Return");
+		returnText.setFont(font);
+		returnText.setCharacterSize(24);
+		returnText.setFillColor(Color::Black);
+		returnText.setPosition(310, 305);
+
+		waitText.setString("Wait");
+		waitText.setFont(font);
+		waitText.setCharacterSize(24);
+		waitText.setFillColor(Color::Black);
+		waitText.setPosition(310, 355);
+
+		window.draw(attackBox);
+		window.draw(itemBox);
+		window.draw(returnBox);
+		window.draw(waitBox);
+		window.draw(attackText);
+		window.draw(itemText);
+		window.draw(returnText);
+		window.draw(waitText);
 	};
 
-	FloatRect getItem1Bounds() { return menuItem1.getGlobalBounds(); };
-	FloatRect getItem2Bounds() { return menuItem2.getGlobalBounds(); };
+	FloatRect getAttackBoxBounds() { return attackBox.getGlobalBounds(); };
+	FloatRect getItemBoxBounds() { return itemBox.getGlobalBounds(); };
+	FloatRect getReturnBoxBounds() { return returnBox.getGlobalBounds(); };
+	FloatRect getWaitBoxBounds() { return waitBox.getGlobalBounds(); };
 
 private:
 	Font font;
-	RectangleShape menuItem1;
-	RectangleShape menuItem2;
-	Text text1;
-	Text text2;
+	RectangleShape attackBox;
+	RectangleShape itemBox;
+	RectangleShape returnBox;
+	RectangleShape waitBox;
+	Text attackText;
+	Text itemText;
+	Text returnText;
+	Text waitText;
 
 };
 

@@ -8,6 +8,7 @@ public:
 	Skill() {
 		//
 	}
+
 	void Vantage(Unit& one, Unit &two);
 
 	void Sol(Unit& one, Unit& two);
