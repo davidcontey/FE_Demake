@@ -21,3 +21,9 @@ string Unit::attack(Unit& enemy) {
 
 	return getName() + " attack misses";
 }
+
+int Unit::computeDamage(Unit enemy) {
+	int defensePower = 0;
+//	if()
+	return defensePower;
+}

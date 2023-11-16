@@ -12,8 +12,6 @@
 using namespace sf;
 using namespace std;
 
-
-
 string getPath() {
     string currentFilePath(__FILE__);
 
@@ -41,7 +39,6 @@ string getPath() {
 
 int main()
 {
-   
     RenderWindow window(VideoMode(750, 700), "Fire Emblem");
 
     Map gameMap = Map();
@@ -49,11 +46,13 @@ int main()
 
     bool dragging = false;
     bool showMenu = false;
+    bool unitSelected = false;
     Vector2f offset;
     Vector2f update = Vector2f(0, 0);
     Vector2i locs;
     Vector2i original;
     vector<Vector2i> possibleMoves;
+    vector<Vector2i> possibleAttacks;
     Game game;
     int changedUnit = 0;
     int enemy = -1;
@@ -79,11 +78,14 @@ int main()
                         if (gameMap.tiles[locs.y][locs.x]->sprite.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
                             if (gameMap.isAPlayerTile(locs.x, locs.y)) {
                                 possibleMoves.clear();
+                                possibleAttacks.clear();
                                 original = { locs.x, locs.y };
                                 changedUnit = gameMap.returnUnit(locs.x, locs.y);
                                 possibleMoves = gameMap.possibleMoves(changedUnit);
+                                possibleAttacks = gameMap.possibleAttacks(changedUnit);
                                 dragging = true;
                                 offset = gameMap.tiles[locs.y][locs.x]->sprite.getPosition() - Vector2f(event.mouseButton.x, event.mouseButton.y);
+                                unitSelected = true;
                             }
                             else {
                                 cout << "not a player unit" << endl;
@@ -96,7 +98,7 @@ int main()
                 }
 
                 if (event.type == Event::MouseButtonReleased) {
-                    if (event.mouseButton.button == Mouse::Left) {
+                    if (event.mouseButton.button == Mouse::Left && unitSelected == true) {
                         Vector2f mousePos = Vector2f(Mouse::getPosition(window));
                         dragging = false;
                         //   vector<Vector2i> possibleMoves = gameMap.possibleMoves(changedUnit);
@@ -104,9 +106,9 @@ int main()
                         {
                             cout << "move valid" << endl;
                             gameMap.updatePositions(changedUnit, mousePos);
-
+                            cout << mousePos.x/50 << ", " << mousePos.y/50 << endl;
                             enemy = gameMap.returnAdjacentUnit(mousePos.x/50, mousePos.y/50);
-
+                            vector<int> enemies = gameMap.returnAllAdjacentEnemies(changedUnit);
                             showMenu = true;
                         }
                         else {
@@ -119,16 +121,16 @@ int main()
                              //fight thing
 
                              //pull up prompt window here probably
-
+                        unitSelected = false;
                     }
                 }
             }
             else if (showMenu) {
                 if (Mouse::isButtonPressed(Mouse::Right)) {
-                    Vector2i mousePosi = Mouse::getPosition(window);
+                    Vector2f mousePos = Vector2f(Mouse::getPosition(window));
                     FloatRect menuItemBounds = menu.getAttackBoxBounds();
 
-                    if (menuItemBounds.contains(static_cast<Vector2f>(mousePosi))) {
+                    if (menuItemBounds.contains(mousePos)) {
 
                         if (enemy != -1) {
                             gameMap.fight(changedUnit, enemy);
@@ -139,14 +141,14 @@ int main()
                     }
 
                     menuItemBounds = menu.getItemBoxBounds();
-                    if (menuItemBounds.contains(static_cast<Vector2f>(mousePosi))) {
+                    if (menuItemBounds.contains(mousePos)) {
                         // what ever this does
                         showMenu = false;
                         cout << "item box" << endl;
                     }
 
                     menuItemBounds = menu.getReturnBoxBounds();
-                    if (menuItemBounds.contains(static_cast<Vector2f>(mousePosi))) {
+                    if (menuItemBounds.contains(mousePos)) {
                         // what ever this does
                         showMenu = false;
                         cout << "return box" << endl;
@@ -154,7 +156,7 @@ int main()
                     }
 
                     menuItemBounds = menu.getWaitBoxBounds();
-                    if (menuItemBounds.contains(static_cast<Vector2f>(mousePosi))) {
+                    if (menuItemBounds.contains(mousePos)) {
                         // what ever this does
                         showMenu = false;
                         gameMap.humanArmy[changedUnit]->setTurn(false);
@@ -175,11 +177,9 @@ int main()
 
         if (dragging) {
             window.draw(gameMap.tiles[locs.y][locs.x]->sprite);
-            // TODO: this creates such a dumb problem that at its core is very low on the prio list 
-            // please fix later
 
             Vector2f mousePos = Vector2f(Mouse::getPosition(window));
-            gameMap.showValidMoves(possibleMoves, changedUnit);
+            gameMap.showValidMoves(possibleMoves, possibleAttacks, changedUnit);
 
             if (mousePos.x < 0) {
                 mousePos.x = 0;

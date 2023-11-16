@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include "Weapon.h";
 
 using namespace sf;
 using namespace std;
@@ -21,6 +22,7 @@ private:
     short mov;
     bool turn;
 public:
+    Weapon weapon;
     Vector2i pos;
 
     Unit(int x, int y) {
@@ -37,6 +39,25 @@ public:
         mov = 0;
         pos.x = x;
         pos.y = y;
+    }
+
+    Unit(int x, int y, string nm, short lvl, short health, short strength, short magic, short skill,
+        short speed, short luck, short defense, short resistance, short move, Weapon weap) {
+        name = nm;
+        level = lvl;
+        hp = health;
+        maxHP = health;
+        str = strength;
+        mag = magic;
+        skl = skill;
+        spd = speed;
+        lck = luck;
+        def = defense;
+        res = resistance;
+        mov = move;
+        pos.x = x;
+        pos.y = y;
+        weapon = weap;
     }
 
     Unit(int x, int y, string nm, short lvl, short health, short strength, short magic, short skill,
@@ -212,4 +233,10 @@ public:
     }
 
     string attack(Unit& enemy);
+    int computeDamage(Unit enemy);
+    int computeCritRate();
+    int computeCritDamage(Unit enemy);
+    int computerAttackSpeed();
+    int computeHitRate();
+
 };

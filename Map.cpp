@@ -18,9 +18,10 @@ void Map::setUpPlayerPositions() {
 
 	/*Unit(int x, int y, short lvl, short health, short strength, short magic, short skill,
 		short speed, short luck, short defense, short resistance, short move)*/
-
+	Weapon weapon;
+	weapon.setSwordStats("Falchion");
 	humanArmy.push_back(new Unit(0, 12, "Lissa",1,17,1,5,4,4,8,3,4,5));
-	humanArmy.push_back(new Unit(2, 12, "Chrom", 1, 20,7,1,8,8,5,7,1,5));
+	humanArmy.push_back(new Unit(2, 12, "Chrom", 1, 20,7,1,8,8,5,7,1,5, weapon));
 	humanArmy.push_back(new Unit(1, 13, "Frederick", 1,28,13,2,12,10,6,14,3,7));
 	humanArmy.push_back(new Unit(3, 13, "Robin", 1,19,6,5,5,8,2,6,4,5));
 }
@@ -32,9 +33,13 @@ void Map::setUpEnemyPositions() {
 	// barb has bronze axe
 	// garrick has hand axe
 	enemyArmy.clear();
-	enemyArmy.push_back(new Unit(7, 0, "Garrick",3, 20,8,0,5,7,2,3,0,0));
-	enemyArmy.push_back(new Unit(5, 1, "Ruffian Barbarian #1",1,16,5,0,2,4,2,1,0,5));
-	enemyArmy.push_back(new Unit(7, 1, "Ruffian Mage #1",1,14,0,4,3,4,3,0,1,5));
+	Weapon weapon;
+	weapon.setAxeStats("Hand Axe");
+	enemyArmy.push_back(new Unit(7, 0, "Garrick",3, 20,8,0,5,7,2,3,0,0, weapon));
+	weapon.setAxeStats("Hand Axe");
+	enemyArmy.push_back(new Unit(5, 1, "Ruffian Barbarian #1",1,16,5,0,2,4,2,1,0,5, weapon));
+	weapon.setTomeStats("Fire");
+	enemyArmy.push_back(new Unit(7, 1, "Ruffian Mage #1",1,14,0,4,3,4,3,0,1,5,weapon));
 	enemyArmy.push_back(new Unit(9, 1, "Ruffian Barbarian #2", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5));
 	enemyArmy.push_back(new Unit(6, 2, "Ruffian Myrmidon #1", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5));
 	enemyArmy.push_back(new Unit(8, 2, "Ruffian Myrmidon #2", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5));
@@ -45,7 +50,6 @@ void Map::setUpEnemyPositions() {
 	enemyArmy.push_back(new Unit(8, 11, "Ruffian Myrmidon #4", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5));
 }
 
-//this function will look like hell, im sure you can make it look nice somehow
 void Map::setUpTiles() {
 	tiles.clear();
 	for (int i = 0; i < gridLength; i++) {
@@ -91,6 +95,15 @@ bool Map::isAValidMove(int x, int y, vector<Vector2i> validMoves) {
 	return false;
 }
 
+bool Map::isAValidAttack(int x, int y, vector<Vector2i> validAttacks) {
+	for (int i = 0; i < validAttacks.size(); i++) {
+		if (y == validAttacks[i].x && x == validAttacks[i].y) {
+			return true;
+		}
+	}
+	return false;
+}
+
 
 bool Map::isEnemyAdjacent(int x, int y) {
 	cout << endl<<x << endl;
@@ -120,7 +133,8 @@ bool Map::isEnemyAdjacent(int x, int y) {
 	return false;
 }
 
-//used for attack or trade purposes
+//used for attack purposes - good for one enemy need to fix for range
+
 int Map::returnAdjacentUnit(int x, int y) {
 	for (int i = 0; i < enemyArmy.size(); i++) {
 		if (y + 1 == enemyArmy[i]->pos.y && x == enemyArmy[i]->pos.x) {
@@ -140,6 +154,36 @@ int Map::returnAdjacentUnit(int x, int y) {
 	}
 
 	return -1;
+}
+
+vector<int> Map::returnAllAdjacentEnemies(int changedUnit) {
+	vector<int> enemies;
+	for (int i = 0; i < enemyArmy.size(); i++) {
+		if (humanArmy[changedUnit]->pos.y + humanArmy[changedUnit]->weapon.getRange() == 
+			enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x == enemyArmy[i]->pos.x) {
+			enemies.push_back(i);
+		}
+		if (humanArmy[changedUnit]->pos.y - humanArmy[changedUnit]->weapon.getRange() == 
+			enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x == enemyArmy[i]->pos.x) {
+			enemies.push_back(i);
+		}
+
+		//up and down checks
+		if (humanArmy[changedUnit]->pos.y == enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x 
+			- humanArmy[changedUnit]->weapon.getRange() == enemyArmy[i]->pos.x) {
+			enemies.push_back(i);
+		}
+		if (humanArmy[changedUnit]->pos.y == enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x 
+			+ humanArmy[changedUnit]->weapon.getRange() == enemyArmy[i]->pos.x) {
+			enemies.push_back(i);
+		}
+	}
+
+	for (int i = 0; i < enemies.size(); i++) {
+		cout <<"enemy " <<enemies[i]<<" is adjacent" << endl;
+	}
+
+	return enemies;
 }
 
 //used for movement purposes
@@ -208,6 +252,35 @@ vector<Vector2i> Map::possibleMoves(int unitID) {
 	}
 
 	/*cout << "Valid moves for " << humanArmy[unitID]->getName() << endl;
+	for (int i = 0; i < finalMoves.size(); i++) {
+		cout << "( " << finalMoves[i].x << "," << finalMoves[i].y << " ) is a valid move"<<endl;
+	}*/
+	return finalMoves;
+}
+
+vector<Vector2i> Map::possibleAttacks(int unitID) {
+	// Get the current unit's position
+	int startX = humanArmy[unitID]->pos.x;
+	int startY = humanArmy[unitID]->pos.y;
+
+	vector<Vector2i> validMoves;
+	vector<Vector2i> finalMoves;
+
+	if (humanArmy[unitID]->weapon.getRange() == 0) {
+		return finalMoves;
+	}
+
+	vector<vector<int>> map = turnMapToInts();
+
+	for (int i = 0; i < gridLength; i++) {
+		for (int j = 0; j < gridHeight; j++) {
+			int path = possiblePath(gridHeight, gridLength, map, humanArmy[unitID]->pos.x, humanArmy[unitID]->pos.y, j, i);
+			if (path > humanArmy[unitID]->getMov() && path <= 
+				humanArmy[unitID]->getMov() + humanArmy[unitID]->weapon.getRange()) finalMoves.push_back({i,j});
+		}
+	}
+
+	/*cout << "Valid attack moves for " << humanArmy[unitID]->getName() << endl;
 	for (int i = 0; i < finalMoves.size(); i++) {
 		cout << "( " << finalMoves[i].x << "," << finalMoves[i].y << " ) is a valid move"<<endl;
 	}*/
@@ -283,7 +356,7 @@ int Map::possiblePath(int n, int m, vector<vector<int>>& grid, int start_x, int 
 	return dis[end_x][end_y];
 }
 
-void Map::showValidMoves(vector<Vector2i> validMoves, int unitID) {
+void Map::showValidMoves(vector<Vector2i> validMoves, vector<Vector2i> validAttacks, int unitID) {
 //	vector<vector<string>> newMap = map1;
 	tiles.clear();
 	for (int i = 0; i < gridLength; i++) {
@@ -302,6 +375,10 @@ void Map::showValidMoves(vector<Vector2i> validMoves, int unitID) {
 					row.push_back(new Tile(getPath() + "validMoveBlue.png", j * 50, i * 50, true));
 					continue;
 				}
+				else if (isAValidAttack(j, i, validAttacks)) {
+					row.push_back(new Tile(getPath() + "validMoveRed.png", j * 50, i * 50, true));
+					continue;
+				}
 				else { 
 					row.push_back(new Tile(getPath() + "ground.png", j * 50, i * 50, true)); 
 					continue;
@@ -315,7 +392,6 @@ void Map::showValidMoves(vector<Vector2i> validMoves, int unitID) {
 				row.push_back(new Tile(getPath() + "wall.png", j * 50, i * 50, true)); 
 				continue;
 			}
-
 		}
 		tiles.push_back(row);
 	}
