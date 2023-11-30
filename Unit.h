@@ -21,8 +21,10 @@ private:
     short res;
     short mov;
     bool turn;
+    bool flyer;
 public:
-    Weapon weapon;
+    vector<Weapon> inventory;
+    Weapon equipped;
     Vector2i pos;
 
     Unit(int x, int y) {
@@ -39,6 +41,8 @@ public:
         mov = 0;
         pos.x = x;
         pos.y = y;
+        flyer = false;
+        turn = true;
     }
 
     Unit(int x, int y, string nm, short lvl, short health, short strength, short magic, short skill,
@@ -57,7 +61,8 @@ public:
         mov = move;
         pos.x = x;
         pos.y = y;
-        weapon = weap;
+        equipped = weap;
+        setInventory(weap);
     }
 
     Unit(int x, int y, string nm, short lvl, short health, short strength, short magic, short skill,
@@ -161,6 +166,10 @@ public:
         return turn;
     }
 
+    bool isFlyer() const {
+        return flyer;
+    }
+
     // Setter functions
     void setLevel(short newLevel) {
         level = newLevel;
@@ -213,6 +222,10 @@ public:
     void setTurn(bool newTurn) {
         turn = newTurn;
     }
+    
+    void setFlyer(bool newFlyer) {
+        flyer = newFlyer;
+    }
 
     void takeDamage(int damage) {
         hp -= damage;
@@ -232,7 +245,27 @@ public:
         return false;
     }
 
+    void setInventory(Weapon addWeapon) {
+        if (inventory.size() < 6) {
+            inventory.push_back(addWeapon);
+        }
+        else {
+            cout << "Inventory it full!" << endl;
+        }
+    }
+
+    void switchWeapon(int x) {
+        Weapon temp;
+        temp = equipped;
+        equipped = inventory[x];
+        inventory[x] = temp;
+
+        cout << "Equiped Weapon: " << equipped.getName() << endl;
+
+    };
+
     string attack(Unit& enemy);
+    bool effective(Unit enemy);
     int computeDamage(Unit enemy);
     int computeCritRate();
     int computeCritDamage(Unit enemy);

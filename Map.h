@@ -2,10 +2,12 @@
 #include <SFML/Graphics.hpp>
 #include "Tile.h"
 #include "Unit.h"
+#include "Game.h"
 #include "Weapon.h"
 #include <vector>
 #include <queue>
 #include <set>
+#include "WeaponMenu.h"
 
 #ifndef MAP_H
 #define MAP_H
@@ -19,6 +21,7 @@ private:
 	void setUpPlayerPositions();
 	void setUpEnemyPositions();
 	void setUpTiles();
+	WeaponMenu menu;
 public:
 	vector<vector<Tile*>> tiles;
 	vector<Unit*> humanArmy;
@@ -80,19 +83,33 @@ public:
 	
 	int returnUnit(int x, int y);
 	int returnAdjacentUnit(int x, int y);
+	int bestAttack(int enemy);
 	vector<int> returnAllAdjacentEnemies(int changedUnit);
 
 	void updatePositions(int selected, Vector2f mousePos);
 	void updatePositions(int selected, Vector2i locs);
-	void fight(int player, int enemy);
+	string fight(int player, int enemy);
 
 	vector<Vector2i> possibleMoves(int unitID);
 	vector<Vector2i> possibleAttacks(int unitID);
 	bool isMoveValid(int unitID, Vector2f mousePos);
 	vector<vector<string>> getMapWithEnemies();
 	vector<vector<int>> turnMapToInts();
+	vector<vector<int>> turnMapToHumanInts();
 	int possiblePath(int n, int m, vector<vector<int>>& grid, int start_x, int start_y, int end_x, int end_y);
 	void showValidMoves(vector<Vector2i> validMoves, vector<Vector2i> validAttacks, int unitID);
+	void switchWeapon(int unitID, int x) { humanArmy[unitID]->switchWeapon(x); };
+
+	void drawWeaponMenu(sf::RenderWindow& window, int unitID) {
+		menu.draw(window, humanArmy[unitID], getPath());
+	}
+
+	void enemyTurns(bool turn);
+	void humanTurns(bool turn);
+
+	bool anyHumanTurns();
+
+	vector<sf::FloatRect> getGlobalBounds() { return menu.getItemBounds(); };
 };
 
 #endif

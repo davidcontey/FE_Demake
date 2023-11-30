@@ -1,5 +1,5 @@
 #include "Map.h"
-#include "Game.h"
+
 
 Map::Map() {
 	gridLength = 14;
@@ -18,12 +18,14 @@ void Map::setUpPlayerPositions() {
 
 	/*Unit(int x, int y, short lvl, short health, short strength, short magic, short skill,
 		short speed, short luck, short defense, short resistance, short move)*/
-	Weapon weapon;
-	weapon.setSwordStats("Falchion");
 	humanArmy.push_back(new Unit(0, 12, "Lissa",1,17,1,5,4,4,8,3,4,5));
-	humanArmy.push_back(new Unit(2, 12, "Chrom", 1, 20,7,1,8,8,5,7,1,5, weapon));
-	humanArmy.push_back(new Unit(1, 13, "Frederick", 1,28,13,2,12,10,6,14,3,7));
-	humanArmy.push_back(new Unit(3, 13, "Robin", 1,19,6,5,5,8,2,6,4,5));
+	Weapon equipped;
+	equipped.setSwordStats("Falchion");
+	humanArmy.push_back(new Unit(2, 12, "Chrom", 1, 20,7,1,8,8,5,7,1,5,equipped));
+	equipped.setLanceStats("Silver Lance");
+	humanArmy.push_back(new Unit(1, 13, "Frederick", 1,28,13,2,12,10,6,14,3,7, equipped));
+	equipped.setTomeStats("Thunder");
+	humanArmy.push_back(new Unit(3, 13, "Robin", 1,19,6,5,5,8,2,6,4,5, equipped));
 }
 
 void Map::setUpEnemyPositions() {
@@ -33,21 +35,22 @@ void Map::setUpEnemyPositions() {
 	// barb has bronze axe
 	// garrick has hand axe
 	enemyArmy.clear();
-	Weapon weapon;
-	weapon.setAxeStats("Hand Axe");
-	enemyArmy.push_back(new Unit(7, 0, "Garrick",3, 20,8,0,5,7,2,3,0,0, weapon));
-	weapon.setAxeStats("Hand Axe");
-	enemyArmy.push_back(new Unit(5, 1, "Ruffian Barbarian #1",1,16,5,0,2,4,2,1,0,5, weapon));
-	weapon.setTomeStats("Fire");
-	enemyArmy.push_back(new Unit(7, 1, "Ruffian Mage #1",1,14,0,4,3,4,3,0,1,5,weapon));
-	enemyArmy.push_back(new Unit(9, 1, "Ruffian Barbarian #2", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5));
-	enemyArmy.push_back(new Unit(6, 2, "Ruffian Myrmidon #1", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5));
-	enemyArmy.push_back(new Unit(8, 2, "Ruffian Myrmidon #2", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5));
-	enemyArmy.push_back(new Unit(9, 5, "Ruffian Mage #2", 1, 14, 0, 4, 3, 4, 3, 0, 1, 5));
-	enemyArmy.push_back(new Unit(0, 7, "Ruffian Barbarian #3", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5));
-	enemyArmy.push_back(new Unit(6, 8, "Ruffian Barbarian #4", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5));
-	enemyArmy.push_back(new Unit(3, 9, "Ruffian Myrmidon #3", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5));
-	enemyArmy.push_back(new Unit(8, 11, "Ruffian Myrmidon #4", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5));
+	Weapon equipped;
+	equipped.setAxeStats("Hand Axe");
+	enemyArmy.push_back(new Unit(7, 0, "Garrick",3, 20,8,0,5,7,2,3,0,0, equipped));
+	equipped.setAxeStats("Bronze Axe");
+	enemyArmy.push_back(new Unit(5, 1, "RuffianA1",1,16,5,0,2,4,2,1,0,5, equipped));
+	enemyArmy.push_back(new Unit(0, 7, "RuffianA2", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5, equipped));
+	enemyArmy.push_back(new Unit(6, 8, "RuffianA3", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5, equipped));
+	enemyArmy.push_back(new Unit(9, 1, "RuffianA4", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5, equipped));
+	equipped.setTomeStats("Wind");
+	enemyArmy.push_back(new Unit(7, 1, "RuffianM1",1,14,0,4,3,4,3,0,1,5, equipped));
+	enemyArmy.push_back(new Unit(9, 5, "RuffianM2", 1, 14, 0, 4, 3, 4, 3, 0, 1, 5, equipped));
+	equipped.setSwordStats("Bronze Sword");
+	enemyArmy.push_back(new Unit(6, 2, "RuffianS1", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5, equipped));
+	enemyArmy.push_back(new Unit(8, 2, "RuffianS2", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5, equipped));
+	enemyArmy.push_back(new Unit(3, 9, "RuffianS3", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5, equipped));
+	enemyArmy.push_back(new Unit(8, 11, "RuffianS4", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5, equipped));
 }
 
 void Map::setUpTiles() {
@@ -158,23 +161,24 @@ int Map::returnAdjacentUnit(int x, int y) {
 
 vector<int> Map::returnAllAdjacentEnemies(int changedUnit) {
 	vector<int> enemies;
+	//need to fix to account for multi range
 	for (int i = 0; i < enemyArmy.size(); i++) {
-		if (humanArmy[changedUnit]->pos.y + humanArmy[changedUnit]->weapon.getRange() == 
+		if (humanArmy[changedUnit]->pos.y + humanArmy[changedUnit]->equipped.getRange() == 
 			enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x == enemyArmy[i]->pos.x) {
 			enemies.push_back(i);
 		}
-		if (humanArmy[changedUnit]->pos.y - humanArmy[changedUnit]->weapon.getRange() == 
+		if (humanArmy[changedUnit]->pos.y - humanArmy[changedUnit]->equipped.getRange() == 
 			enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x == enemyArmy[i]->pos.x) {
 			enemies.push_back(i);
 		}
 
 		//up and down checks
 		if (humanArmy[changedUnit]->pos.y == enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x 
-			- humanArmy[changedUnit]->weapon.getRange() == enemyArmy[i]->pos.x) {
+			- humanArmy[changedUnit]->equipped.getRange() == enemyArmy[i]->pos.x) {
 			enemies.push_back(i);
 		}
 		if (humanArmy[changedUnit]->pos.y == enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x 
-			+ humanArmy[changedUnit]->weapon.getRange() == enemyArmy[i]->pos.x) {
+			+ humanArmy[changedUnit]->equipped.getRange() == enemyArmy[i]->pos.x) {
 			enemies.push_back(i);
 		}
 	}
@@ -213,26 +217,41 @@ void Map::updatePositions(int selected, Vector2i locs) {
 	setUpTiles();
 }
 
-void Map::fight(int player, int enemy) {
+string Map::fight(int player, int enemy) {
 	Game game;
 //	game.fight(*humanArmy[player], *enemyArmy[enemy]);
 	int attacks = 1;
 	string outcome = "";
-	if (humanArmy[player]->getSpd() - enemyArmy[enemy]->getSpd() >= 5) {
-		attacks = 2;
+	if (humanArmy[player]->isTurn()) {
+		if (humanArmy[player]->getSpd() - enemyArmy[enemy]->getSpd() >= 5) {
+			attacks = 2;
+		}
+		
+		outcome = humanArmy[player]->attack(*enemyArmy[enemy]) + "\n";
+		
+		outcome += enemyArmy[enemy]->attack(*humanArmy[player]) + "\n";
+		//brave weapons would 4x attack but I probably wont add those
+		if (attacks == 2) {
+			cout << "2x attack" << endl;
+			outcome += humanArmy[player]->attack(*enemyArmy[enemy]);
+		}
 	}
-//	cout << "Enemy health before attack: " << enemyArmy[enemy]->getHP() << endl;
-	outcome = humanArmy[player]->attack(*enemyArmy[enemy]);
-	outcome += enemyArmy[enemy]->attack(*humanArmy[player]);
-	if (attacks == 2) {
-		cout << "2x attack" << endl;
-		outcome += humanArmy[player]->attack(*enemyArmy[enemy]);
+	else {
+		if (enemyArmy[enemy]->getSpd() - humanArmy[player]->getSpd() >= 5) {
+			attacks = 2;
+		}
+		outcome = enemyArmy[enemy]->attack(*humanArmy[player]) + "\n";
+		outcome += humanArmy[player]->attack(*enemyArmy[enemy]) + "\n";
+		if (attacks == 2) {
+			cout << "2x attack" << endl;
+			outcome += enemyArmy[enemy]->attack(*humanArmy[player]);
+		}
 	}
+	
+
+	
 //	cout << "Enemy health after attack: "<<enemyArmy[enemy]->getHP() << endl;
-	cout << outcome << endl;
-
-
-	//should return outcome and print in menu
+	return outcome;
 }
 
 vector<Vector2i> Map::possibleMoves(int unitID) {
@@ -266,7 +285,7 @@ vector<Vector2i> Map::possibleAttacks(int unitID) {
 	vector<Vector2i> validMoves;
 	vector<Vector2i> finalMoves;
 
-	if (humanArmy[unitID]->weapon.getRange() == 0) {
+	if (humanArmy[unitID]->equipped.getRange() == 0) {
 		return finalMoves;
 	}
 
@@ -276,7 +295,7 @@ vector<Vector2i> Map::possibleAttacks(int unitID) {
 		for (int j = 0; j < gridHeight; j++) {
 			int path = possiblePath(gridHeight, gridLength, map, humanArmy[unitID]->pos.x, humanArmy[unitID]->pos.y, j, i);
 			if (path > humanArmy[unitID]->getMov() && path <= 
-				humanArmy[unitID]->getMov() + humanArmy[unitID]->weapon.getRange()) finalMoves.push_back({i,j});
+				humanArmy[unitID]->getMov() + humanArmy[unitID]->equipped.getRange()) finalMoves.push_back({i,j});
 		}
 	}
 
@@ -302,6 +321,24 @@ vector<vector<int>> Map::turnMapToInts() {
 			isEnemyTile = isAEnemyTile(i, j);
 			if (map1[j][i] == "g" && isEnemyTile) row.push_back(1);
 			else if (map1[j][i] == "g") row.push_back(0);
+			if (map1[j][i] == "w") row.push_back(1);
+			if (map1[j][i] == "n") row.push_back(1);
+		}
+		map.push_back(row);
+	}
+
+	return map;
+}
+
+vector<vector<int>> Map::turnMapToHumanInts() {
+	vector<vector<int>> map;
+	bool isHumanTile = false;
+	for (int i = 0; i < gridHeight; i++) {
+		vector<int> row;
+		for (int j = 0; j < gridLength; j++) {
+			isHumanTile = isAPlayerTile(i, j);
+		//	if (map1[j][i] == "g" && isHumanTile) row.push_back(1);
+			if (map1[j][i] == "g") row.push_back(0);
 			if (map1[j][i] == "w") row.push_back(1);
 			if (map1[j][i] == "n") row.push_back(1);
 		}
@@ -395,4 +432,66 @@ void Map::showValidMoves(vector<Vector2i> validMoves, vector<Vector2i> validAtta
 		}
 		tiles.push_back(row);
 	}
+}
+
+int Map::bestAttack(int enemy) {
+	int armyLoc = -1;
+	Map gameMap;
+	vector<vector<int>> map;
+	map = turnMapToHumanInts();
+	vector<Unit*> possibleAttacks;
+	int minScore = INT_MAX;
+	int score = 0;
+
+	for (int i = 0; i < humanArmy.size(); i++) {
+		//ignore units it cant hit
+		int path = gameMap.possiblePath(gridHeight, gridLength, map, enemyArmy[enemy]->pos.x,
+			enemyArmy[enemy]->pos.y, humanArmy[i]->pos.x, humanArmy[i]->pos.y);
+		cout << path << endl;
+		if (path > enemyArmy[enemy]->getMov() + enemyArmy[enemy]->equipped.getRange() || path < 0) {
+			continue;
+		}
+
+		score = 0;
+		if (enemyArmy[enemy]->effective(*humanArmy[i])) {
+			score += 10;
+		}
+
+		if (humanArmy[i]->equipped.isAStave() == true) {
+			score += 5;
+		}
+
+		if (score < minScore) {
+			minScore = score;
+			armyLoc = i;
+		}
+	}
+
+	/*if (armyLoc != -1) {
+		cout << "best person to attack for this mans is " << humanArmy[armyLoc]->getName() << endl;
+	}
+	else {
+		cout << "nothing for " << enemyArmy[enemy]->getName() << " to attack" << endl;
+	}*/
+
+	return armyLoc;
+}
+
+
+void Map::enemyTurns(bool turn) {
+	for (int i = 0; i < enemyArmy.size(); i++) {
+		enemyArmy[i]->setTurn(turn);
+	}
+}
+void Map::humanTurns(bool turn) {
+	for (int i = 0; i < humanArmy.size(); i++) {
+		humanArmy[i]->setTurn(turn);
+	}
+}
+
+bool Map::anyHumanTurns() {
+	for (int i = 0; i < humanArmy.size(); i++) {
+		if (humanArmy[i]->isTurn()) return true;
+	}
+	return false;
 }

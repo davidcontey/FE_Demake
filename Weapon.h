@@ -5,9 +5,9 @@ using namespace std;
 class Weapon
 {
 public:
-	Weapon() : name(""), range(0), uses(0), might(0), hit(0), crt(0), weight(0), weaponType('P') {};
+	Weapon() : name(""), range(0), uses(0), might(0), hit(0), crt(0), weight(0), damageType('P'), stave(false) {};
 
-
+	Weapon(string name);
 
 	void setSwordStats(string swordName) {
 		if (swordName == "Bronze Sword") {
@@ -17,7 +17,8 @@ public:
 			hit = 100;
 			crt = 0;
 			weight = 5;
-			weaponType = 'P';
+			damageType = 'P';
+			weaponType = "sword";
 			name = swordName;
 		}
 		else if (swordName == "Iron Sword") {
@@ -27,7 +28,8 @@ public:
 			hit = 95;
 			crt = 0;
 			weight = 3;
-			weaponType = 'P';
+			damageType = 'P';
+			weaponType = "sword";
 			name = swordName;
 		}
 		else if (swordName == "Steel Sword") {
@@ -37,7 +39,8 @@ public:
 			hit = 90;
 			crt = 0;
 			weight = 4;
-			weaponType = 'P';
+			damageType = 'P';
+			weaponType = "sword";
 			name = swordName;
 		}
 		else if (swordName == "Silver Sword") {
@@ -47,7 +50,8 @@ public:
 			hit = 85;
 			crt = 0;
 			weight = 3;
-			weaponType = 'P';
+			damageType = 'P';
+			weaponType = "sword";
 			name = swordName;
 		}
 		else if (swordName == "Falchion") {
@@ -57,7 +61,8 @@ public:
 			hit = 80;
 			crt = 0;
 			weight = 5;
-			weaponType = 'P';
+			damageType = 'P';
+			weaponType = "sword";
 			name = swordName;
 		}
 
@@ -72,7 +77,8 @@ public:
 			hit = 90;
 			crt = 0;
 			weight = 4;
-			weaponType = 'P';
+			damageType = 'P';
+			weaponType = "bow";
 			name = bowName;
 		}
 		else if (bowName == "Iron Bow") {
@@ -82,7 +88,8 @@ public:
 			hit = 85;
 			crt = 0;
 			weight = 1;
-			weaponType = 'P';
+			damageType = 'P';
+			weaponType = "bow";
 			name = bowName;
 		}
 		else if (bowName == "Steel Bow") {
@@ -92,7 +99,8 @@ public:
 			hit = 80;
 			crt = 0;
 			weight = 3;
-			weaponType = 'P';
+			damageType = 'P';
+			weaponType = "bow";
 			name = bowName;
 		}
 		else if (bowName == "Silver Bow") {
@@ -102,7 +110,8 @@ public:
 			hit = 75;
 			crt = 0;
 			weight = 6;
-			weaponType = 'P';
+			damageType = 'P';
+			weaponType = "bow";
 			name = bowName;
 		}
 
@@ -117,7 +126,8 @@ public:
 			hit = 70;
 			crt = 0;
 			weight = 4;
-			weaponType = 'P';
+			damageType = 'P';
+			weaponType = "axe";
 			name = axeName;
 		}
 		
@@ -132,7 +142,8 @@ public:
 			hit = 90;
 			crt = 0;
 			weight = 0;
-			weaponType = 'M';
+			damageType = 'M';
+			weaponType = "tome";
 			name = tomeName;
 		}
 		else if (tomeName == "Elfire") {
@@ -142,7 +153,8 @@ public:
 			hit = 85;
 			crt = 0;
 			weight = 0;
-			weaponType = 'M';
+			damageType = 'M';
+			weaponType = "tome";
 			name = tomeName;
 		}
 		else if (tomeName == "Thunder") {
@@ -152,7 +164,8 @@ public:
 			hit = 80;
 			crt = 5;
 			weight = 0;
-			weaponType = 'M';
+			damageType = 'M';
+			weaponType = "tome";
 			name = tomeName;
 		}
 		else if (tomeName == "Elthunder") {
@@ -162,7 +175,19 @@ public:
 			hit = 75;
 			crt = 5;
 			weight = 0;
-			weaponType = 'M';
+			damageType = 'M';
+			weaponType = "tome";
+			name = tomeName;
+		}
+		else if (tomeName == "Wind") {
+			range = 2;
+			uses = 45;
+			might = 1;
+			hit = 100;
+			crt = 0;
+			weight = 0;
+			damageType = 'M';
+			weaponType = "tome";
 			name = tomeName;
 		}
 		else if (tomeName == "Katarina's Bolt") {
@@ -172,8 +197,23 @@ public:
 			hit = 75;
 			crt = 30;
 			weight = 0;
-			weaponType = 'M';
+			damageType = 'M';
+			weaponType = "tome";
 			name = tomeName;
+		}
+	}
+
+	void setLanceStats(string lanceName) {
+		if (lanceName == "Silver Lance") {
+			range = 1;
+			uses = 30;
+			might = 13;
+			hit = 75;
+			crt = 0;
+			weight = 5;
+			damageType = 'P';
+			weaponType = "lance";
+			name = lanceName;
 		}
 	}
 
@@ -183,11 +223,13 @@ public:
 	int getRange() const { return range; };
 	int getMight() const { return might; };
 
-	char getWeaponType() const { return weaponType; }
+	char getDamageType() const { return damageType; }
 	int getCRT() const { return crt; };
 	int getWeight() const { return weight; };
 	int getHit() const { return hit; };
+	bool isAStave() const { return stave; };
 	string getName() { return name; };
+	string getWeaponType() const { return weaponType; }
 protected:
 	//char rank;
 	string name;
@@ -197,6 +239,10 @@ protected:
 	int hit;
 	int crt;
 	int weight;
-	char weaponType;
+	char damageType;
+	string weaponType;
+	bool stave;
+private:
+	void setStats(string name);
 };
 

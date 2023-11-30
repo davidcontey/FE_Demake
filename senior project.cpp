@@ -7,6 +7,10 @@
 #include "Tile.h"
 #include "Game.h"
 #include "Menu.h"
+#include "WeaponMenu.h"
+#include "PreFightMenu.h"
+#include "SelectEnemyMenu.h"
+#include "FightMenu.h"
 #include <cmath>
 
 using namespace sf;
@@ -42,20 +46,35 @@ int main()
     RenderWindow window(VideoMode(750, 700), "Fire Emblem");
 
     Map gameMap = Map();
+    gameMap.enemyTurns(false);
+    gameMap.humanTurns(true);
     Menu menu;
+    WeaponMenu weaponMenu;
+    PreFightMenu preFightMenu;
+    SelectEnemyMenu selectEnemyMenu;
+    FightMenu fightMenu;
 
     bool dragging = false;
-    bool showMenu = false;
     bool unitSelected = false;
+
+    bool showMenu = false;
+    bool showWeaponMenu = false;
+    bool showPreFightMenu = false;
+    bool showFight = false;
+    bool showEnemyMenu = false;
+
     Vector2f offset;
     Vector2f update = Vector2f(0, 0);
     Vector2i locs;
     Vector2i original;
     vector<Vector2i> possibleMoves;
     vector<Vector2i> possibleAttacks;
+    vector<int> enemies;
     Game game;
     int changedUnit = 0;
     int enemy = -1;
+    string fight = "";
+
 
     while (window.isOpen())
     {
@@ -66,7 +85,7 @@ int main()
             }
 
             // Handle mouse events
-            if (!showMenu) {
+            if (!showMenu && !showWeaponMenu && !showPreFightMenu && !showEnemyMenu) {
                 if (event.type == Event::MouseButtonPressed) {
                     if (event.mouseButton.button == Mouse::Left) {
                         // Check if the mouse click is inside the sprite
@@ -104,11 +123,12 @@ int main()
                         //   vector<Vector2i> possibleMoves = gameMap.possibleMoves(changedUnit);
                         if (gameMap.isAValidMove(mousePos.x / 50, mousePos.y / 50, possibleMoves))
                         {
+                            enemies.clear();
                             cout << "move valid" << endl;
                             gameMap.updatePositions(changedUnit, mousePos);
                             cout << mousePos.x/50 << ", " << mousePos.y/50 << endl;
                             enemy = gameMap.returnAdjacentUnit(mousePos.x/50, mousePos.y/50);
-                            vector<int> enemies = gameMap.returnAllAdjacentEnemies(changedUnit);
+                            enemies = gameMap.returnAllAdjacentEnemies(changedUnit);
                             showMenu = true;
                         }
                         else {
@@ -126,17 +146,15 @@ int main()
                 }
             }
             else if (showMenu) {
-                if (Mouse::isButtonPressed(Mouse::Right)) {
+                if (Mouse::isButtonPressed(Mouse::Left)) {
                     Vector2f mousePos = Vector2f(Mouse::getPosition(window));
                     FloatRect menuItemBounds = menu.getAttackBoxBounds();
 
                     if (menuItemBounds.contains(mousePos)) {
 
-                        if (enemy != -1) {
-                            gameMap.fight(changedUnit, enemy);
-                        }
-
                         showMenu = false;
+                    //    showPreFightMenu = true;
+                        showEnemyMenu = true;
                         cout << "attack box" << endl;
                     }
 
@@ -144,6 +162,7 @@ int main()
                     if (menuItemBounds.contains(mousePos)) {
                         // what ever this does
                         showMenu = false;
+                        showWeaponMenu = true;
                         cout << "item box" << endl;
                     }
 
@@ -164,7 +183,86 @@ int main()
                     }
                 }
             }
+            else if (showWeaponMenu) {
+                if (Mouse::isButtonPressed(Mouse::Left)) {
+                    Vector2i mousePosition = Mouse::getPosition(window);
+                    vector<FloatRect> gb = gameMap.getGlobalBounds();
+                    for (int i = 0; i < gb.size(); i++) {
+                        if (gb[i].contains(static_cast<Vector2f>(mousePosition))) {
+                            if (gb.size() - 1 != i) {
+                                gameMap.switchWeapon(changedUnit, i);
+                                cout << "Weapon Switched" << endl;
+                            }
+                            showWeaponMenu = false;
+                            break;
+                        }
+                    }
+                }
+            }
+            else if (showEnemyMenu) {
+                if (Mouse::isButtonPressed(Mouse::Left)) {
+                    Vector2f mousePos = Vector2f(Mouse::getPosition(window));
+                    vector<FloatRect> enemyBoxes = selectEnemyMenu.getItemBounds();
+                    for (int i = 0; i < enemyBoxes.size(); i++) {
+                        if (enemyBoxes[i].contains(mousePos)) {
+                            if (enemyBoxes.size() - 1 != i) {
+                                enemy = selectEnemyMenu.getSelectedEnemy(i);
+                                cout << "Enemy " << enemy <<  " Selected" << endl;
+                            }
+                            showEnemyMenu = false;
+                            showPreFightMenu = true;
+                            break;
+                        }
+                    }
+
+                    //this is true
+                }
+            }
+            else if (showPreFightMenu) {
+                if (Mouse::isButtonPressed(Mouse::Left)) {
+                    Vector2f mousePos = Vector2f(Mouse::getPosition(window));
+                    FloatRect menuItemBounds = preFightMenu.getFightItemBounds();
+
+                    //this is fight
+
+                    if (menuItemBounds.contains(mousePos)) {
+                        fight = gameMap.fight(changedUnit, enemy);
+                        showPreFightMenu = false;
+                        showFight = true;
+                    //    cout << "fight time" << endl;
+                    }
+
+                    menuItemBounds = preFightMenu.getReturnItemBounds();
+                    if (menuItemBounds.contains(mousePos)) {
+                        //    showFight = true;
+                        showEnemyMenu = true;
+                        showPreFightMenu = false;
+                        cout << "returning" << endl;
+                    }
+                    //this is true
+                }
+            }
+            
         }
+        
+        if (!gameMap.anyHumanTurns()) {
+            gameMap.enemyTurns(true);
+            for (int i = 0; i < gameMap.enemyArmy.size(); i++) {
+                if (gameMap.enemyArmy[i]->isTurn()) {
+                    int bestAttack = gameMap.bestAttack(i);
+                    if (bestAttack != -1) {
+                        // move
+                        // pause
+                        // fight
+                    }
+                }
+            }
+            gameMap.enemyTurns(false);
+            gameMap.humanTurns(true);
+        }
+        
+
+        
 
         window.clear();
 
@@ -199,8 +297,26 @@ int main()
             gameMap.tiles[locs.y][locs.x]->sprite.setPosition(update);
         }
 
-        if (showMenu) menu.draw(window, getPath());
-
+        if (showMenu && !showWeaponMenu) menu.draw(window, getPath());
+        if (showWeaponMenu && showMenu) gameMap.drawWeaponMenu(window, changedUnit);
+        if (showPreFightMenu) preFightMenu.draw(window, gameMap.humanArmy[changedUnit],
+            gameMap.enemyArmy[enemy], getPath());
+        if (showEnemyMenu) selectEnemyMenu.draw(window, gameMap.enemyArmy, enemies, getPath());
+        
+        
+        
+        if (showFight) {
+            if (gameMap.enemyArmy[enemy]->isTurn()) {
+                fightMenu.draw(window, gameMap.enemyArmy[enemy], 
+                    gameMap.humanArmy[changedUnit], fight, getPath());
+            //    showFight = false;
+            }
+            else {
+                fightMenu.draw(window, gameMap.humanArmy[changedUnit],
+                    gameMap.enemyArmy[enemy], fight, getPath());
+            //    showFight = false;
+            }
+        }
         window.display();
     }
 
