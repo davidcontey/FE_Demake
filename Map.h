@@ -82,6 +82,8 @@ public:
 	bool isEnemyAdjacent(int x, int y);
 	
 	int returnUnit(int x, int y);
+	int returnHumanUnitFromPosition(int x, int y);
+	int returnEnemyUnitFromPosition(int x, int y);
 	int returnAdjacentUnit(int x, int y);
 	int bestAttack(int enemy);
 	vector<int> returnAllAdjacentEnemies(int changedUnit);
@@ -108,6 +110,8 @@ public:
 	void humanTurns(bool turn);
 
 	bool anyHumanTurns();
+
+	void checkDeaths();
 
 	vector<sf::FloatRect> getGlobalBounds() { return menu.getItemBounds(); };
 };

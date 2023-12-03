@@ -5,7 +5,7 @@ using namespace std;
 class Weapon
 {
 public:
-	Weapon() : name(""), range(0), uses(0), might(0), hit(0), crt(0), weight(0), damageType('P'), stave(false) {};
+	Weapon() : name(""), range(0), uses(0), might(0), hit(0), crt(0), weight(0), damageType('P'), stave(false),multirange(false) {};
 
 	Weapon(string name);
 
@@ -129,6 +129,7 @@ public:
 			damageType = 'P';
 			weaponType = "axe";
 			name = axeName;
+			multirange = true;
 		}
 		
 
@@ -145,6 +146,7 @@ public:
 			damageType = 'M';
 			weaponType = "tome";
 			name = tomeName;
+			multirange = true;
 		}
 		else if (tomeName == "Elfire") {
 			range = 2;
@@ -156,6 +158,7 @@ public:
 			damageType = 'M';
 			weaponType = "tome";
 			name = tomeName;
+			multirange = true;
 		}
 		else if (tomeName == "Thunder") {
 			range = 2;
@@ -167,6 +170,7 @@ public:
 			damageType = 'M';
 			weaponType = "tome";
 			name = tomeName;
+			multirange = true;
 		}
 		else if (tomeName == "Elthunder") {
 			range = 2;
@@ -178,6 +182,7 @@ public:
 			damageType = 'M';
 			weaponType = "tome";
 			name = tomeName;
+			multirange = true;
 		}
 		else if (tomeName == "Wind") {
 			range = 2;
@@ -189,6 +194,7 @@ public:
 			damageType = 'M';
 			weaponType = "tome";
 			name = tomeName;
+			multirange = true;
 		}
 		else if (tomeName == "Katarina's Bolt") {
 			range = 2;
@@ -200,6 +206,7 @@ public:
 			damageType = 'M';
 			weaponType = "tome";
 			name = tomeName;
+			multirange = true;
 		}
 	}
 
@@ -228,6 +235,7 @@ public:
 	int getWeight() const { return weight; };
 	int getHit() const { return hit; };
 	bool isAStave() const { return stave; };
+	bool isMultirange() const { return multirange; };
 	string getName() { return name; };
 	string getWeaponType() const { return weaponType; }
 protected:
@@ -242,6 +250,7 @@ protected:
 	char damageType;
 	string weaponType;
 	bool stave;
+	bool multirange;
 private:
 	void setStats(string name);
 };

@@ -239,7 +239,7 @@ public:
 
     bool checkDeath() {
         if (hp <= 0) {
-            cout << "Unit is dead." << std::endl;
+            cout << getName() <<" is dead." << endl;
             return true;
         }
         return false;

@@ -39,18 +39,18 @@ void Map::setUpEnemyPositions() {
 	equipped.setAxeStats("Hand Axe");
 	enemyArmy.push_back(new Unit(7, 0, "Garrick",3, 20,8,0,5,7,2,3,0,0, equipped));
 	equipped.setAxeStats("Bronze Axe");
-	enemyArmy.push_back(new Unit(5, 1, "RuffianA1",1,16,5,0,2,4,2,1,0,5, equipped));
-	enemyArmy.push_back(new Unit(0, 7, "RuffianA2", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5, equipped));
-	enemyArmy.push_back(new Unit(6, 8, "RuffianA3", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5, equipped));
-	enemyArmy.push_back(new Unit(9, 1, "RuffianA4", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5, equipped));
+	enemyArmy.push_back(new Unit(5, 1, "RuffianA",1,16,5,0,2,4,2,1,0,5, equipped));
+	enemyArmy.push_back(new Unit(0, 7, "RuffianA", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5, equipped));
+	enemyArmy.push_back(new Unit(6, 8, "RuffianA", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5, equipped));
+	enemyArmy.push_back(new Unit(9, 1, "RuffianA", 1, 16, 5, 0, 2, 4, 2, 1, 0, 5, equipped));
 	equipped.setTomeStats("Wind");
-	enemyArmy.push_back(new Unit(7, 1, "RuffianM1",1,14,0,4,3,4,3,0,1,5, equipped));
-	enemyArmy.push_back(new Unit(9, 5, "RuffianM2", 1, 14, 0, 4, 3, 4, 3, 0, 1, 5, equipped));
+	enemyArmy.push_back(new Unit(7, 1, "RuffianM",1,14,0,4,3,4,3,0,1,5, equipped));
+	enemyArmy.push_back(new Unit(9, 5, "RuffianM", 1, 14, 0, 4, 3, 4, 3, 0, 1, 5, equipped));
 	equipped.setSwordStats("Bronze Sword");
-	enemyArmy.push_back(new Unit(6, 2, "RuffianS1", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5, equipped));
-	enemyArmy.push_back(new Unit(8, 2, "RuffianS2", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5, equipped));
-	enemyArmy.push_back(new Unit(3, 9, "RuffianS3", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5, equipped));
-	enemyArmy.push_back(new Unit(8, 11, "RuffianS4", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5, equipped));
+	enemyArmy.push_back(new Unit(6, 2, "RuffianS", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5, equipped));
+	enemyArmy.push_back(new Unit(8, 2, "RuffianS", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5, equipped));
+	enemyArmy.push_back(new Unit(3, 9, "RuffianS", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5, equipped));
+	enemyArmy.push_back(new Unit(8, 11, "RuffianS", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5, equipped));
 }
 
 void Map::setUpTiles() {
@@ -59,8 +59,20 @@ void Map::setUpTiles() {
 		vector<Tile*> row;
 		for (int j = 0; j < gridHeight; j++) {
 			if (map1[i][j] == "g") {
-				if (isAPlayerTile(j, i)) row.push_back(new Tile(getPath() + "ct1.png", j * 50, i * 50, true));
-				else if (isAEnemyTile(j, i)) row.push_back(new Tile(getPath() + "ct1.png", j * 50, i * 50, true));
+				if (isAPlayerTile(j, i)) {
+					string unitPath = "textures/" + 
+						humanArmy[returnHumanUnitFromPosition(j, i)]->getName() + "/"+
+						humanArmy[returnHumanUnitFromPosition(j, i)]->getName() +
+						"Sprite.png";
+					row.push_back(new Tile(getPath() + unitPath, j * 50, i * 50, true));
+				}
+				else if (isAEnemyTile(j, i)) {
+					string unitPath = "textures/" +
+						enemyArmy[returnEnemyUnitFromPosition(j, i)]->getName() + "/" +
+						enemyArmy[returnEnemyUnitFromPosition(j, i)]->getName() +
+						"Sprite.png";
+					row.push_back(new Tile(getPath() + unitPath, j * 50, i * 50, true));
+				}
 				else row.push_back(new Tile(getPath() + "ground.png", j * 50, i * 50, true));
 			}
 			if (map1[i][j] == "w") row.push_back(new Tile(getPath() + "water.png", j * 50, i * 50, true));
@@ -88,6 +100,26 @@ bool Map::isAEnemyTile(int x, int y) {
 	}
 	return false;
 }
+
+int Map::returnHumanUnitFromPosition(int x, int y) {
+	for (int i = 0; i < humanArmy.size(); i++) {
+		if (y == humanArmy[i]->pos.y && x == humanArmy[i]->pos.x) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+int Map::returnEnemyUnitFromPosition(int x, int y) {
+	for (int i = 0; i < enemyArmy.size(); i++) {
+		if (y == enemyArmy[i]->pos.y && x == enemyArmy[i]->pos.x) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+
 
 bool Map::isAValidMove(int x, int y, vector<Vector2i> validMoves) {
 	for (int i = 0; i < validMoves.size(); i++) {
@@ -163,28 +195,91 @@ vector<int> Map::returnAllAdjacentEnemies(int changedUnit) {
 	vector<int> enemies;
 	//need to fix to account for multi range
 	for (int i = 0; i < enemyArmy.size(); i++) {
-		if (humanArmy[changedUnit]->pos.y + humanArmy[changedUnit]->equipped.getRange() == 
-			enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x == enemyArmy[i]->pos.x) {
-			enemies.push_back(i);
-		}
-		if (humanArmy[changedUnit]->pos.y - humanArmy[changedUnit]->equipped.getRange() == 
-			enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x == enemyArmy[i]->pos.x) {
-			enemies.push_back(i);
-		}
 
-		//up and down checks
-		if (humanArmy[changedUnit]->pos.y == enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x 
-			- humanArmy[changedUnit]->equipped.getRange() == enemyArmy[i]->pos.x) {
-			enemies.push_back(i);
+		if (humanArmy[changedUnit]->equipped.isMultirange()) {
+			for (int j = 1; j <= humanArmy[changedUnit]->equipped.getRange(); j++) {
+
+				//THESE ARE JUST CHECKING HARD LEFT/RIGHT OR HARD UP/DOWN
+				//right and left
+				
+
+				//these are up right, etc.
+			//	if (j > 1) {
+					//right left
+					for (int y = 0; y <= humanArmy[changedUnit]->equipped.getRange()-1; y++) {
+						//THESE ARE JUST CHECKING HARD LEFT/RIGHT OR HARD UP/DOWN
+						//right and left
+						if (humanArmy[changedUnit]->pos.y + j ==
+							enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x == enemyArmy[i]->pos.x) {
+							enemies.push_back(i);
+						}
+						if (humanArmy[changedUnit]->pos.y - j ==
+							enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x == enemyArmy[i]->pos.x) {
+							enemies.push_back(i);
+						}
+
+						//up and down checks
+						if (humanArmy[changedUnit]->pos.y == enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x
+							- j == enemyArmy[i]->pos.x) {
+							enemies.push_back(i);
+						}
+						if (humanArmy[changedUnit]->pos.y == enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x
+							+ j == enemyArmy[i]->pos.x) {
+							enemies.push_back(i);
+						}
+
+						//up right, up left
+						if (humanArmy[changedUnit]->pos.y + j == enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x
+							+ y == enemyArmy[i]->pos.x) {
+							enemies.push_back(i);
+						}
+						if (humanArmy[changedUnit]->pos.y - j == enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x
+							+ y == enemyArmy[i]->pos.x) {
+							enemies.push_back(i);
+						}
+
+						//up down
+						if (humanArmy[changedUnit]->pos.y - j == enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x
+							- y == enemyArmy[i]->pos.x) {
+							enemies.push_back(i);
+						}
+
+						if (humanArmy[changedUnit]->pos.y + j == enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x
+							- y == enemyArmy[i]->pos.x) {
+							enemies.push_back(i);
+						}
+					}	
+				//}
+			}
 		}
-		if (humanArmy[changedUnit]->pos.y == enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x 
-			+ humanArmy[changedUnit]->equipped.getRange() == enemyArmy[i]->pos.x) {
-			enemies.push_back(i);
+		else {
+			if (humanArmy[changedUnit]->pos.y + humanArmy[changedUnit]->equipped.getRange() ==
+				enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x == enemyArmy[i]->pos.x) {
+				enemies.push_back(i);
+			}
+			if (humanArmy[changedUnit]->pos.y - humanArmy[changedUnit]->equipped.getRange() ==
+				enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x == enemyArmy[i]->pos.x) {
+				enemies.push_back(i);
+			}
+
+			//up and down checks
+			if (humanArmy[changedUnit]->pos.y == enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x
+				- humanArmy[changedUnit]->equipped.getRange() == enemyArmy[i]->pos.x) {
+				enemies.push_back(i);
+			}
+			if (humanArmy[changedUnit]->pos.y == enemyArmy[i]->pos.y && humanArmy[changedUnit]->pos.x
+				+ humanArmy[changedUnit]->equipped.getRange() == enemyArmy[i]->pos.x) {
+				enemies.push_back(i);
+			}
 		}
+		
 	}
 
+	sort(enemies.begin(), enemies.end());
+	enemies.erase(unique(enemies.begin(), enemies.end()), enemies.end());
+
 	for (int i = 0; i < enemies.size(); i++) {
-		cout <<"enemy " <<enemies[i]<<" is adjacent" << endl;
+		cout <<"enemy " << enemies[i] <<" is adjacent" << endl;
 	}
 
 	return enemies;
@@ -221,19 +316,52 @@ string Map::fight(int player, int enemy) {
 	Game game;
 //	game.fight(*humanArmy[player], *enemyArmy[enemy]);
 	int attacks = 1;
-	string outcome = "";
+	string outcome;
 	if (humanArmy[player]->isTurn()) {
 		if (humanArmy[player]->getSpd() - enemyArmy[enemy]->getSpd() >= 5) {
 			attacks = 2;
 		}
 		
-		outcome = humanArmy[player]->attack(*enemyArmy[enemy]) + "\n";
+		outcome = humanArmy[player]->attack(*enemyArmy[enemy]);
+
+		if (humanArmy[player]->checkDeath()) {
+			humanArmy.erase(humanArmy.begin() + player);
+			return "\n" + outcome;
+		}
+
+		if (enemyArmy[enemy]->checkDeath()) {
+			enemyArmy.erase(enemyArmy.begin() + enemy);
+			return "\n" + outcome;
+		}
+
+		outcome += "\n";
 		
-		outcome += enemyArmy[enemy]->attack(*humanArmy[player]) + "\n";
+		outcome += enemyArmy[enemy]->attack(*humanArmy[player]);
+
+		if (humanArmy[player]->checkDeath()) {
+			humanArmy.erase(humanArmy.begin() + player);
+			return "\n" + outcome;
+		}
+
+		if (enemyArmy[enemy]->checkDeath()) {
+			enemyArmy.erase(enemyArmy.begin() + enemy);
+			return "\n" + outcome;
+		}
+
 		//brave weapons would 4x attack but I probably wont add those
 		if (attacks == 2) {
+			if (humanArmy[player]->checkDeath()) {
+				humanArmy.erase(humanArmy.begin() + player);
+				return "\n" + outcome;
+			}
+
+			if (enemyArmy[enemy]->checkDeath()) {
+				enemyArmy.erase(enemyArmy.begin() + enemy);
+				return "\n" + outcome;
+			}
+
 			cout << "2x attack" << endl;
-			outcome += humanArmy[player]->attack(*enemyArmy[enemy]);
+			outcome += "\n" + humanArmy[player]->attack(*enemyArmy[enemy]);
 		}
 	}
 	else {
@@ -401,11 +529,19 @@ void Map::showValidMoves(vector<Vector2i> validMoves, vector<Vector2i> validAtta
 		for (int j = 0; j < gridHeight; j++) {
 			if (map1[i][j] == "g") {
 				if (isAPlayerTile(j, i) && humanArmy[unitID]->pos.x != i && humanArmy[unitID]->pos.y !=j) {
-					row.push_back(new Tile(getPath() + "ct1.png", j * 50, i * 50, true)); 
+					string unitPath = "textures/" +
+						humanArmy[returnHumanUnitFromPosition(j, i)]->getName() + "/" +
+						humanArmy[returnHumanUnitFromPosition(j, i)]->getName() +
+						"Sprite.png";
+					row.push_back(new Tile(getPath() + unitPath, j * 50, i * 50, true)); 
 					continue;
 				}
 				else if (isAEnemyTile(j, i)) {
-					row.push_back(new Tile(getPath() + "ct1.png", j * 50, i * 50, true));
+					string unitPath = "textures/" +
+						enemyArmy[returnEnemyUnitFromPosition(j, i)]->getName() + "/" +
+						enemyArmy[returnEnemyUnitFromPosition(j, i)]->getName() +
+						"Sprite.png";
+					row.push_back(new Tile(getPath() + unitPath, j * 50, i * 50, true));
 					continue;
 				}
 				else if (isAValidMove(j, i, validMoves)) {
@@ -494,4 +630,20 @@ bool Map::anyHumanTurns() {
 		if (humanArmy[i]->isTurn()) return true;
 	}
 	return false;
+}
+
+void Map::checkDeaths() {
+	for (int i = 0; i < humanArmy.size(); i++) {
+		if (humanArmy[i]->checkDeath()) {
+			humanArmy.erase(humanArmy.begin() + i);
+			i--;
+		}
+	}
+
+	for (int i = 0; i < enemyArmy.size(); i++) {
+		if (enemyArmy[i]->checkDeath()) {
+			enemyArmy.erase(enemyArmy.begin() + i);
+			i--;
+		}
+	}
 }

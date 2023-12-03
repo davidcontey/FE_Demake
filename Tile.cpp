@@ -19,7 +19,9 @@ bool Tile::setTileSprite(string path) {
 		return false;
 	}
 	texture.setSmooth(true);
+	
 	sprite.setTexture(texture);
+	
 	sprite.setTextureRect(IntRect(0, 0, 50, 50));
 	return true;
 }

@@ -74,12 +74,14 @@ int main()
     int changedUnit = 0;
     int enemy = -1;
     string fight = "";
+    Clock clock;
 
 
     while (window.isOpen())
     {
         Event event;
         while (window.pollEvent(event)) {
+
             if (event.type == Event::Closed) {
                 window.close();
             }
@@ -208,14 +210,13 @@ int main()
                             if (enemyBoxes.size() - 1 != i) {
                                 enemy = selectEnemyMenu.getSelectedEnemy(i);
                                 cout << "Enemy " << enemy <<  " Selected" << endl;
+                                showPreFightMenu = true;
                             }
                             showEnemyMenu = false;
-                            showPreFightMenu = true;
+                            
                             break;
                         }
                     }
-
-                    //this is true
                 }
             }
             else if (showPreFightMenu) {
@@ -262,9 +263,11 @@ int main()
         }
         
 
-        
+        gameMap.checkDeaths();
 
         window.clear();
+
+        
 
 
         for (int i = 0; i < gameMap.gridLength; i++) {
@@ -298,25 +301,26 @@ int main()
         }
 
         if (showMenu && !showWeaponMenu) menu.draw(window, getPath());
-        if (showWeaponMenu && showMenu) gameMap.drawWeaponMenu(window, changedUnit);
+        if (showWeaponMenu) gameMap.drawWeaponMenu(window, changedUnit);
         if (showPreFightMenu) preFightMenu.draw(window, gameMap.humanArmy[changedUnit],
             gameMap.enemyArmy[enemy], getPath());
         if (showEnemyMenu) selectEnemyMenu.draw(window, gameMap.enemyArmy, enemies, getPath());
         
-        
-        
         if (showFight) {
+            window.clear(Color::Black);
             if (gameMap.enemyArmy[enemy]->isTurn()) {
-                fightMenu.draw(window, gameMap.enemyArmy[enemy], 
+                fightMenu.draw(window, gameMap.enemyArmy[enemy],
                     gameMap.humanArmy[changedUnit], fight, getPath());
-            //    showFight = false;
+                showFight = false;
             }
             else {
                 fightMenu.draw(window, gameMap.humanArmy[changedUnit],
                     gameMap.enemyArmy[enemy], fight, getPath());
-            //    showFight = false;
+                showFight = false;
             }
         }
+        
+        
         window.display();
     }
 
