@@ -2,6 +2,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include "Weapon.h";
+#include <string>
 
 using namespace sf;
 using namespace std;

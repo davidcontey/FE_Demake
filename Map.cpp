@@ -316,69 +316,67 @@ string Map::fight(int player, int enemy) {
 	Game game;
 //	game.fight(*humanArmy[player], *enemyArmy[enemy]);
 	int attacks = 1;
-	string outcome;
+	string outcome = "";
 	if (humanArmy[player]->isTurn()) {
 		if (humanArmy[player]->getSpd() - enemyArmy[enemy]->getSpd() >= 5) {
 			attacks = 2;
 		}
-		
-		outcome = humanArmy[player]->attack(*enemyArmy[enemy]);
+		outcome = humanArmy[player]->getName();
+		outcome += humanArmy[player]->attack(*enemyArmy[enemy]);
+		outcome += "Fight ";
 
 		if (humanArmy[player]->checkDeath()) {
 			humanArmy.erase(humanArmy.begin() + player);
-			return "\n" + outcome;
+			return outcome;
 		}
 
 		if (enemyArmy[enemy]->checkDeath()) {
 			enemyArmy.erase(enemyArmy.begin() + enemy);
-			return "\n" + outcome;
+			return outcome;
 		}
-
-		outcome += "\n";
 		
+		outcome += enemyArmy[enemy]->getName();
 		outcome += enemyArmy[enemy]->attack(*humanArmy[player]);
+		outcome += "Fight ";
 
 		if (humanArmy[player]->checkDeath()) {
 			humanArmy.erase(humanArmy.begin() + player);
-			return "\n" + outcome;
+			return outcome;
 		}
 
 		if (enemyArmy[enemy]->checkDeath()) {
 			enemyArmy.erase(enemyArmy.begin() + enemy);
-			return "\n" + outcome;
+			return outcome;
 		}
 
 		//brave weapons would 4x attack but I probably wont add those
 		if (attacks == 2) {
 			if (humanArmy[player]->checkDeath()) {
 				humanArmy.erase(humanArmy.begin() + player);
-				return "\n" + outcome;
+				return outcome;
 			}
 
 			if (enemyArmy[enemy]->checkDeath()) {
 				enemyArmy.erase(enemyArmy.begin() + enemy);
-				return "\n" + outcome;
+				return outcome;
 			}
-
-			cout << "2x attack" << endl;
-			outcome += "\n" + humanArmy[player]->attack(*enemyArmy[enemy]);
+			outcome += humanArmy[player]->getName();
+			outcome += humanArmy[player]->attack(*enemyArmy[enemy]);
+			outcome += "Fight ";
 		}
 	}
 	else {
+		//TODO add check death
 		if (enemyArmy[enemy]->getSpd() - humanArmy[player]->getSpd() >= 5) {
 			attacks = 2;
 		}
-		outcome = enemyArmy[enemy]->attack(*humanArmy[player]) + "\n";
-		outcome += humanArmy[player]->attack(*enemyArmy[enemy]) + "\n";
+		outcome = enemyArmy[enemy]->attack(*humanArmy[player]);
+		outcome += humanArmy[player]->attack(*enemyArmy[enemy]);
 		if (attacks == 2) {
-			cout << "2x attack" << endl;
 			outcome += enemyArmy[enemy]->attack(*humanArmy[player]);
 		}
 	}
-	
 
-	
-//	cout << "Enemy health after attack: "<<enemyArmy[enemy]->getHP() << endl;
 	return outcome;
 }
 

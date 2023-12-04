@@ -6,6 +6,7 @@
 #include <chrono>
 #include <thread>
 #include "Unit.h"
+#include <sstream>;
 using namespace std;
 using namespace sf;
 using namespace this_thread;
@@ -16,32 +17,16 @@ class FightMenu
 public:
 	FightMenu() { };
 
-	vector<pair<string,string>> parseOutcome(string outcome) {
-
-		vector<pair<string, string>> newOutcome;
-		regex pattern("(\\w+) hits for (\\d+)");
-
-		sregex_iterator it(outcome.begin(), outcome.end(), pattern);
-		sregex_iterator end;
-
-		while (it != end) {
-			// Extracting matched groups
-			std::smatch match = *it;
-			std::string name = match[1].str();
-			int number = std::stoi(match[2].str());
-
-			// Output the result
-			std::cout << "Name: " << name << ", Number: " << number << std::endl;
-			pair<string, string> pair;
-			pair.first = name;
-			pair.second = to_string(number);
-
-			newOutcome.push_back(pair);
-			// Move to the next match
-			++it;
+	vector<string> parseOutcome(string outcome) {
+		string inputString = outcome;
+		istringstream iss(inputString);
+		vector<string> words;
+		string word;
+		while (getline(iss, word, ' ')) {
+			cout << word << endl;
+			words.push_back(word);
 		}
-
-		return newOutcome;
+		return words;
 	}
 
 	void draw(RenderWindow& window, Unit* attacker, Unit* defender, 
@@ -52,7 +37,7 @@ public:
 		background.setFillColor(Color(0, 0, 0, 256));*/
 
 
-		vector<pair<string, string>> outcomes= parseOutcome(outcome);
+		vector<string> outcomes = parseOutcome(outcome);
 		if (!font.loadFromFile(path + "fire_emblem_font.ttf"))
 		{
 			// nothing
@@ -98,25 +83,50 @@ public:
 		bool attackerTurn = false;
 		bool defenderTurn = false;
 
-		if (attacker->getName() == outcomes[0].first) {
-			attackerDamage.setString(outcomes[0].second);
-			defenderDamage.setString(outcomes[1].second);
-			attackerTurn = true;
-		}
-		else if (defender->getName() == outcomes[0].first) {
-			attackerDamage.setString(outcomes[0].second);
-			defenderDamage.setString(outcomes[1].second);
-			defenderTurn = true;
-		}
-
-
-		int totalAttacks = 0;
+		int place = 0;
 		int move = 1;
+
 		//likely make this a for loop
 		while (true) {
-			if (totalAttacks > outcome.size()) {
+			if (place >= outcomes.size()) {
 				return;
 			}
+		//	cout << outcomes[place] << endl;
+			if (outcomes[place] == attacker->getName()) {
+				attackerTurn = true;
+				defenderTurn = false;
+				place++;
+				continue;
+			}
+			else if (outcomes[place] == defender->getName()) {
+				defenderTurn = true;
+				attackerTurn = false;
+				place++;
+				continue;
+			}
+			else if (outcomes[place] == "Damage") {
+				place++;
+				continue;
+			}
+			else if (outcomes[place] == "Fight") {
+				//do nothing
+			}
+			else {
+				size_t pos;
+				int value = stoi(outcomes[place], &pos);
+
+				if (pos == outcomes[place].size()) {
+					if (attackerTurn) {
+						attackerDamage.setString(outcomes[place]);
+					}
+					else if (defenderTurn) {
+						defenderDamage.setString(outcomes[place]);
+					}
+				}
+				place++;
+				continue;
+			}
+
 
 			if (attackerTurn) {
 				if (clock.getElapsedTime().asSeconds() > .005f) {
@@ -132,9 +142,10 @@ public:
 				
 				if (move <= 0) {
 					attackerTurn = false; 
-					defenderTurn = true;
 					direction = true;
-					totalAttacks++;
+					place++;
+					move = 1;
+					continue;
 				}
 				
 				window.clear();
@@ -155,12 +166,12 @@ public:
 					clock.restart();
 				}
 				if (move > 60) direction = false;
-
 				if (move <= 0) {
-					attackerTurn = false;
-					defenderTurn = true;
+					defenderTurn = false;
 					direction = true;
-					totalAttacks++;
+					place++;
+					move = 1;
+					continue;
 				}
 
 				window.clear();

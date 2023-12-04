@@ -3,30 +3,29 @@
 string Unit::attack(Unit& enemy) {
 	//  [Weapon Hit] + (2*Dexterity) + (Luck / 2)
 	// weapon hit + skill(1.5) + luck/2 + triangle advantage + weapon level bonus + skill bonus
-	string attackStatus;
+	string attackStatus = "";
 	int damage = computeDamage(enemy);
 	if (damage > 0) {
 		srand(time(0));
 		//check skill activate
 
 		int percentHit = rand() % 101;
-
 		if (percentHit <= computeHitRate()) {
 			int active = rand() % 101;
 			if (active < computeCritRate()) {
 				damage = computeCritDamage(enemy);
-				attackStatus += "CRIT! ";
+				attackStatus += " Crit";
 			}
-			attackStatus = getName() + " hits for " + to_string(damage);
+			attackStatus = " Damage " + to_string(damage) + " ";
 			equipped.setUses(equipped.getUses() - 1);
 			enemy.takeDamage(damage);
 		}
 		else {
-			attackStatus = getName() + " Attack misses";
+			attackStatus += " Miss ";
 		}
 	}
 	else {
-		return getName() + " hits for 0";
+		return attackStatus + " Damage 0 ";
 	}
 	return attackStatus;
 }
