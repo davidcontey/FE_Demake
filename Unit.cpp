@@ -5,7 +5,7 @@ string Unit::attack(Unit& enemy) {
 	// weapon hit + skill(1.5) + luck/2 + triangle advantage + weapon level bonus + skill bonus
 	string attackStatus = "";
 	int damage = computeDamage(enemy);
-	if (damage > 0) {
+	if (damage >= 0) {
 		srand(time(0));
 		//check skill activate
 
@@ -51,6 +51,9 @@ int Unit::computeDamage(Unit enemy) {
 		else {
 			attackPower = getMag() + equipped.getMight();
 		}
+	}
+	if (attackPower - defensePower <= 0) {
+		return 0;
 	}
 	return attackPower - defensePower;
 }

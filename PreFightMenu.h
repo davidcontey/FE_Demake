@@ -82,7 +82,7 @@ public:
 					text[i].setString(to_string(defender->getHP()));
 					break;
 				case 1:
-					text[i].setString(to_string(defender->equipped.getMight()));
+					text[i].setString(to_string(defender->computeDamage(*attacker)));
 					break;
 				case 2:
 					text[i].setString(to_string(defender->computeHitRate()));
@@ -106,7 +106,7 @@ public:
 				text[i + 4].setString(to_string(attacker->getHP()));
 				break;
 			case 1:
-				text[i + 4].setString(to_string(attacker->equipped.getMight()));
+				text[i + 4].setString(to_string(attacker->computeDamage(*defender)));
 				break;
 			case 2:
 				text[i + 4].setString(to_string(attacker->computeHitRate()));

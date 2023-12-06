@@ -123,6 +123,9 @@ int Map::returnEnemyUnitFromPosition(int x, int y) {
 
 bool Map::isAValidMove(int x, int y, vector<Vector2i> validMoves) {
 	for (int i = 0; i < validMoves.size(); i++) {
+		if (isAEnemyTile(x, y) || isAPlayerTile(x, y)) {
+			return false;
+		}
 		if (y == validMoves[i].x && x == validMoves[i].y) {
 			return true;
 		}
@@ -162,6 +165,32 @@ bool Map::isEnemyAdjacent(int x, int y) {
 		}
 		if (y == enemyArmy[i]->pos.y && x + 1 == enemyArmy[i]->pos.x) {
 			cout << "enemy " << i << " is adjacent" << endl;
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Map::isHumanAdjacent(int x, int y) {
+	for (int i = 0; i < humanArmy.size(); i++) {
+		//right and left checks
+		if (y + 1 == humanArmy[i]->pos.y && x == humanArmy[i]->pos.x) {
+		//	cout << "human " << i << " is adjacent" << endl;
+			return true;
+		}
+
+		if (y - 1 == humanArmy[i]->pos.y && x == humanArmy[i]->pos.x) {
+		//	cout << "human " << i << " is adjacent" << endl;
+			return true;
+		}
+
+		//up and down checks
+		if (y == humanArmy[i]->pos.y && x - 1 == humanArmy[i]->pos.x) {
+		//	cout << "human " << i << " is adjacent" << endl;
+			return true;
+		}
+		if (y == humanArmy[i]->pos.y && x + 1 == humanArmy[i]->pos.x) {
+		//	cout << "human " << i << " is adjacent" << endl;
 			return true;
 		}
 	}
@@ -326,43 +355,49 @@ string Map::fight(int player, int enemy) {
 		outcome += "Fight ";
 
 		if (humanArmy[player]->checkDeath()) {
-			humanArmy.erase(humanArmy.begin() + player);
+		//	humanArmy.erase(humanArmy.begin() + player);
 			return outcome;
 		}
 
 		if (enemyArmy[enemy]->checkDeath()) {
-			enemyArmy.erase(enemyArmy.begin() + enemy);
+		//	enemyArmy.erase(enemyArmy.begin() + enemy);
 			return outcome;
 		}
 		
-		outcome += enemyArmy[enemy]->getName();
-		outcome += enemyArmy[enemy]->attack(*humanArmy[player]);
-		outcome += "Fight ";
+		if (!enemyArmy[enemy]->equipped.isAStave()) {
+			outcome += enemyArmy[enemy]->getName();
+			outcome += enemyArmy[enemy]->attack(*humanArmy[player]);
+			outcome += "Fight ";
+		}
+
+		
 
 		if (humanArmy[player]->checkDeath()) {
-			humanArmy.erase(humanArmy.begin() + player);
+		//	humanArmy.erase(humanArmy.begin() + player);
 			return outcome;
 		}
 
 		if (enemyArmy[enemy]->checkDeath()) {
-			enemyArmy.erase(enemyArmy.begin() + enemy);
+		//	enemyArmy.erase(enemyArmy.begin() + enemy);
 			return outcome;
 		}
 
 		//brave weapons would 4x attack but I probably wont add those
 		if (attacks == 2) {
+			
+			outcome += humanArmy[player]->getName();
+			outcome += humanArmy[player]->attack(*enemyArmy[enemy]);
+			outcome += "Fight ";
+
 			if (humanArmy[player]->checkDeath()) {
-				humanArmy.erase(humanArmy.begin() + player);
+				//	humanArmy.erase(humanArmy.begin() + player);
 				return outcome;
 			}
 
 			if (enemyArmy[enemy]->checkDeath()) {
-				enemyArmy.erase(enemyArmy.begin() + enemy);
+				//	enemyArmy.erase(enemyArmy.begin() + enemy);
 				return outcome;
 			}
-			outcome += humanArmy[player]->getName();
-			outcome += humanArmy[player]->attack(*enemyArmy[enemy]);
-			outcome += "Fight ";
 		}
 	}
 	else {
@@ -370,13 +405,51 @@ string Map::fight(int player, int enemy) {
 		if (enemyArmy[enemy]->getSpd() - humanArmy[player]->getSpd() >= 5) {
 			attacks = 2;
 		}
-		outcome = enemyArmy[enemy]->attack(*humanArmy[player]);
-		outcome += humanArmy[player]->attack(*enemyArmy[enemy]);
+		outcome = enemyArmy[enemy]->getName();
+		outcome += enemyArmy[enemy]->attack(*humanArmy[player]);
+		outcome += "Fight ";
+
+		if (humanArmy[player]->checkDeath()) {
+			//	humanArmy.erase(humanArmy.begin() + player);
+			return outcome;
+		}
+
+		if (enemyArmy[enemy]->checkDeath()) {
+			//	enemyArmy.erase(enemyArmy.begin() + enemy);
+			cout << outcome << endl;
+			return outcome;
+		}
+
+
+		if (!humanArmy[player]->equipped.isAStave()) {
+			outcome += humanArmy[player]->getName();
+			outcome += humanArmy[player]->attack(*enemyArmy[enemy]);
+			outcome += "Fight ";
+		}
+		
+
+		if (humanArmy[player]->checkDeath()) {
+			//	humanArmy.erase(humanArmy.begin() + player);
+			return outcome;
+		}
+
+		if (enemyArmy[enemy]->checkDeath()) {
+			//	enemyArmy.erase(enemyArmy.begin() + enemy);
+			return outcome;
+		}
+		
 		if (attacks == 2) {
+			outcome += enemyArmy[enemy]->getName();
 			outcome += enemyArmy[enemy]->attack(*humanArmy[player]);
+			outcome += "Fight ";
+
+			if (humanArmy[player]->checkDeath()) {
+			//	humanArmy.erase(humanArmy.begin() + player);
+				return outcome;
+			}
 		}
 	}
-
+	
 	return outcome;
 }
 
@@ -432,9 +505,22 @@ vector<Vector2i> Map::possibleAttacks(int unitID) {
 	return finalMoves;
 }
 
-vector<vector<string>> Map::getMapWithEnemies() {
-	vector<vector<string>> map;
+vector<vector<int>> Map::getMapWithUnitObstacles() {
+	vector<vector<int>> map;
+	bool isUnitTile = false;
 	
+	for (int i = 0; i < gridHeight; i++) {
+		vector<int> row;
+		for (int j = 0; j < gridLength; j++) {
+			isUnitTile = isAEnemyTile(i, j) || isAPlayerTile(i,j);
+			if (map1[j][i] == "g" && isUnitTile) row.push_back(1);
+			else if (map1[j][i] == "g") row.push_back(0);
+			if (map1[j][i] == "w") row.push_back(1);
+			if (map1[j][i] == "n") row.push_back(1);
+		}
+		map.push_back(row);
+	}
+
 	return map;
 }
 
@@ -579,9 +665,9 @@ int Map::bestAttack(int enemy) {
 
 	for (int i = 0; i < humanArmy.size(); i++) {
 		//ignore units it cant hit
-		int path = gameMap.possiblePath(gridHeight, gridLength, map, enemyArmy[enemy]->pos.x,
+		int path = possiblePath(gridHeight, gridLength, map, enemyArmy[enemy]->pos.x,
 			enemyArmy[enemy]->pos.y, humanArmy[i]->pos.x, humanArmy[i]->pos.y);
-		cout << path << endl;
+	//	cout << path << endl;
 		if (path > enemyArmy[enemy]->getMov() + enemyArmy[enemy]->equipped.getRange() || path < 0) {
 			continue;
 		}
@@ -631,17 +717,205 @@ bool Map::anyHumanTurns() {
 }
 
 void Map::checkDeaths() {
+//	cout << "checking deaths" << endl;
 	for (int i = 0; i < humanArmy.size(); i++) {
 		if (humanArmy[i]->checkDeath()) {
 			humanArmy.erase(humanArmy.begin() + i);
-			i--;
+			checkDeaths();
 		}
 	}
 
 	for (int i = 0; i < enemyArmy.size(); i++) {
 		if (enemyArmy[i]->checkDeath()) {
 			enemyArmy.erase(enemyArmy.begin() + i);
-			i--;
+			checkDeaths();
 		}
 	}
+}
+
+void Map::moveEnemyUnit(int enemy, int human) {
+	vector<vector<int>> map;
+	map = turnMapToHumanInts();
+	int newX = humanArmy[human]->pos.x;
+	int newY = humanArmy[human]->pos.y;
+
+//	cout << "checking " << enemyArmy[enemy]->getName() << endl;
+	if (isHumanAdjacent(enemyArmy[enemy]->pos.x, enemyArmy[enemy]->pos.y)) {
+		return;
+	}
+
+	//ok, lets talk about this whole function
+	//in theory i could make it account for literally every range from 0 to INT_MAX
+	//but my time is winding down and I do not feel like setting it up
+	//i am going to assume that the max attack range is 2, to make my life just that much easier
+	//I have programmed no weapons that are over 2 range anyway, so it should be fine
+	//thank you for understanding
+
+	if (!enemyArmy[enemy]->equipped.isMultirange()) {
+		if (enemyArmy[enemy]->getName() == "RuffianM") {
+			cout << "mage" << endl;
+		}
+
+		if (enemyArmy[enemy]->equipped.getRange() > 1) {
+			if (enemyArmy[enemy]->getName() == "RuffianM") {
+				cout << "mage range" << endl;
+			}
+
+
+			for (int i = 0; i < 8; i++) {
+				newX = humanArmy[human]->pos.x;
+				newY = humanArmy[human]->pos.y;
+
+				switch (i) {
+				case 0:
+					newX += enemyArmy[enemy]->equipped.getRange();
+					break;
+				case 1:
+					newX += enemyArmy[enemy]->equipped.getRange();
+					break;
+				case 2:
+					newY += enemyArmy[enemy]->equipped.getRange();
+					break;
+				case 3:
+					newY -= enemyArmy[enemy]->equipped.getRange();
+					break;
+				case 4:
+					newX += enemyArmy[enemy]->equipped.getRange() - 1;
+					newY += enemyArmy[enemy]->equipped.getRange() - 1;
+					break;
+				case 5:
+					newX += enemyArmy[enemy]->equipped.getRange() - 1;
+					newY -= enemyArmy[enemy]->equipped.getRange() - 1;
+					break;
+				case 6:
+					newX -= enemyArmy[enemy]->equipped.getRange() - 1;
+					newY += enemyArmy[enemy]->equipped.getRange() - 1;
+					break;
+				case 7:
+					newX -= enemyArmy[enemy]->equipped.getRange() - 1;
+					newY -= enemyArmy[enemy]->equipped.getRange() - 1;
+					break;
+				}
+
+				/*cout << "checking: " << enemyArmy[enemy]->pos.x << ", " <<
+					enemyArmy[enemy]->pos.y << " move to " << newX << ", " << newY << endl;*/
+
+				int path = possiblePath(gridHeight, gridLength, map, enemyArmy[enemy]->pos.x,
+					enemyArmy[enemy]->pos.y, newX, newY);
+				if (path > enemyArmy[enemy]->getMov() + enemyArmy[enemy]->equipped.getRange() || path < 0) {
+					continue;
+				}
+				else if (isAEnemyTile(newX, newY)) {
+					continue;
+				}
+				else {
+					cout << enemy << " moving to " << newX << ", " << newY << endl;
+					enemyArmy[enemy]->pos.x = newX;
+					enemyArmy[enemy]->pos.y = newY;
+					return;
+				}
+			}
+		}
+		else {
+			for (int i = 0; i < 4; i++) {
+				newX = humanArmy[human]->pos.x;
+				newY = humanArmy[human]->pos.y;
+
+				switch (i) {
+				case 0:
+					newX += enemyArmy[enemy]->equipped.getRange();
+					break;
+				case 1:
+					newX += enemyArmy[enemy]->equipped.getRange();
+					break;
+				case 2:
+					newY += enemyArmy[enemy]->equipped.getRange();
+					break;
+				case 3:
+					newY -= enemyArmy[enemy]->equipped.getRange();
+					break;
+				
+				}
+
+				/*cout << "checking: " << enemyArmy[enemy]->pos.x << ", " <<
+					enemyArmy[enemy]->pos.y << " move to " << newX << ", " << newY << endl;*/
+
+				int path = possiblePath(gridHeight, gridLength, map, enemyArmy[enemy]->pos.x,
+					enemyArmy[enemy]->pos.y, newX, newY);
+				if (path > enemyArmy[enemy]->getMov() + enemyArmy[enemy]->equipped.getRange() || path < 0) {
+					continue;
+				}
+				else if (isAEnemyTile(newX, newY)) {
+					continue;
+				}
+				else {
+					cout << enemy << " moving to " << newX << ", " << newY << endl;
+					enemyArmy[enemy]->pos.x = newX;
+					enemyArmy[enemy]->pos.y = newY;
+					return;
+				}
+			}
+		}
+	}
+	else {
+		cout << "multirange unit " << enemyArmy[enemy]->getName() << endl;
+		//im assuming 2 max
+		for (int i = 0; i < 8; i++) {
+			newX = humanArmy[human]->pos.x;
+			newY = humanArmy[human]->pos.y;
+
+
+			switch (i) {
+			case 0:
+				newX += enemyArmy[enemy]->equipped.getRange();
+				break;
+			case 1:
+				newX += enemyArmy[enemy]->equipped.getRange();
+				break;
+			case 2:
+				newY += enemyArmy[enemy]->equipped.getRange();
+				break;
+			case 3:
+				newY -= enemyArmy[enemy]->equipped.getRange();
+				break;
+			case 4:
+				newX += enemyArmy[enemy]->equipped.getRange() - 1;
+				newY += enemyArmy[enemy]->equipped.getRange() - 1;
+				break;
+			case 5:
+				newX += enemyArmy[enemy]->equipped.getRange() - 1;
+				newY -= enemyArmy[enemy]->equipped.getRange() - 1;
+				break;
+			case 6:
+				newX -= enemyArmy[enemy]->equipped.getRange() - 1;
+				newY += enemyArmy[enemy]->equipped.getRange() - 1;
+				break;
+			case 7:
+				newX -= enemyArmy[enemy]->equipped.getRange() - 1;
+				newY -= enemyArmy[enemy]->equipped.getRange() - 1;
+				break;
+			}
+
+			/*cout << "checking: " << enemyArmy[enemy]->pos.x << ", " <<
+				enemyArmy[enemy]->pos.y << " move to " << newX << ", " << newY << endl;*/
+
+			int path = possiblePath(gridHeight, gridLength, map, enemyArmy[enemy]->pos.x,
+				enemyArmy[enemy]->pos.y, newX, newY);
+			if (path > enemyArmy[enemy]->getMov() + enemyArmy[enemy]->equipped.getRange() || path < 0) {
+				continue;
+			}
+			else if (isAEnemyTile(newX, newY)) {
+				continue;
+			}
+			else {
+				cout << enemy << " moving to " << newX << ", " << newY << endl;
+				enemyArmy[enemy]->pos.x = newX;
+				enemyArmy[enemy]->pos.y = newY;
+				return;
+			}
+		}
+	}
+	
+
+	
 }

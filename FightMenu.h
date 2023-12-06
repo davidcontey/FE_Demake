@@ -23,7 +23,6 @@ public:
 		vector<string> words;
 		string word;
 		while (getline(iss, word, ' ')) {
-			cout << word << endl;
 			words.push_back(word);
 		}
 		return words;
@@ -55,12 +54,12 @@ public:
 
 		attackerTexture.setSmooth(true);
 		attackerSprite.setTexture(attackerTexture);
-		attackerSprite.setTextureRect(IntRect(0, 0, 150, 125));
+		attackerSprite.setTextureRect(IntRect(0, 0, 150, 160));
 		attackerSprite.setPosition(window.getSize().x / 6, window.getSize().y / 2);
 
 		defenderTexture.setSmooth(true);
 		defenderSprite.setTexture(defenderTexture);
-		defenderSprite.setTextureRect(IntRect(0, 0, 150, 125));
+		defenderSprite.setTextureRect(IntRect(0, 0, 150, 160));
 		defenderSprite.setScale(-1.0f,1.0f);
 		defenderSprite.setPosition(window.getSize().x - (window.getSize().x / 6), 
 			window.getSize().y / 2);
@@ -110,6 +109,10 @@ public:
 			}
 			else if (outcomes[place] == "Fight") {
 				//do nothing
+			}
+			else if (outcomes[place] == "Miss") {
+				place++;
+				continue;
 			}
 			else {
 				size_t pos;

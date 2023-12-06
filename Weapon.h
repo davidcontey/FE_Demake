@@ -10,6 +10,8 @@ public:
 	Weapon(string name);
 
 	void setSwordStats(string swordName) {
+		multirange = false;
+
 		if (swordName == "Bronze Sword") {
 			range = 1;
 			uses = 50;
@@ -69,7 +71,7 @@ public:
 	};
 
 	void setBowStats(string bowName) {
-
+		multirange = false;
 		if (bowName == "Bronze Bow") {
 			range = 2;
 			uses = 50;
@@ -118,7 +120,7 @@ public:
 	}
 
 	void setAxeStats(string axeName) {
-
+		multirange = false;
 		if (axeName == "Hand Axe") {
 			range = 2;
 			uses = 25;
@@ -131,11 +133,23 @@ public:
 			name = axeName;
 			multirange = true;
 		}
+		else if (axeName == "Bronze Axe") {
+			range = 1;
+			uses = 50;
+			might = 5;
+			hit = 85;
+			crt = 0;
+			weight = 7;
+			damageType = 'P';
+			weaponType = "axe";
+			name = axeName;
+		}
 		
 
 	}
 
 	void setTomeStats(string tomeName) {
+		multirange = false;
 		if (tomeName == "Fire") {
 			range = 2;
 			uses = 45;
@@ -211,6 +225,7 @@ public:
 	}
 
 	void setLanceStats(string lanceName) {
+		multirange = false;
 		if (lanceName == "Silver Lance") {
 			range = 1;
 			uses = 30;

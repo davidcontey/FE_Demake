@@ -81,7 +81,7 @@ int main()
     {
         Event event;
         while (window.pollEvent(event)) {
-
+            
             if (event.type == Event::Closed) {
                 window.close();
             }
@@ -102,11 +102,16 @@ int main()
                                 possibleAttacks.clear();
                                 original = { locs.x, locs.y };
                                 changedUnit = gameMap.returnUnit(locs.x, locs.y);
-                                possibleMoves = gameMap.possibleMoves(changedUnit);
-                                possibleAttacks = gameMap.possibleAttacks(changedUnit);
-                                dragging = true;
-                                offset = gameMap.tiles[locs.y][locs.x]->sprite.getPosition() - Vector2f(event.mouseButton.x, event.mouseButton.y);
-                                unitSelected = true;
+                                if (gameMap.humanArmy[changedUnit]->isTurn()) {
+                                    possibleMoves = gameMap.possibleMoves(changedUnit);
+                                    possibleAttacks = gameMap.possibleAttacks(changedUnit);
+                                    dragging = true;
+                                    offset = gameMap.tiles[locs.y][locs.x]->sprite.getPosition() - Vector2f(event.mouseButton.x, event.mouseButton.y);
+                                    unitSelected = true;
+                                }
+                                else {
+                                    cout << "not its turn" << endl;
+                                }
                             }
                             else {
                                 cout << "not a player unit" << endl;
@@ -229,6 +234,7 @@ int main()
                     if (menuItemBounds.contains(mousePos)) {
                         fight = gameMap.fight(changedUnit, enemy);
                         showPreFightMenu = false;
+                        gameMap.humanArmy[changedUnit]->setTurn(false);
                         showFight = true;
                     //    cout << "fight time" << endl;
                     }
@@ -251,19 +257,26 @@ int main()
             for (int i = 0; i < gameMap.enemyArmy.size(); i++) {
                 if (gameMap.enemyArmy[i]->isTurn()) {
                     int bestAttack = gameMap.bestAttack(i);
+                //    cout << bestAttack << endl;
                     if (bestAttack != -1) {
-                        // move
+                        cout << "about to move" << endl;
+                        //move
+                        gameMap.moveEnemyUnit(i, bestAttack);
+                        //if within range, fight
+                        //the way this function above works should just move the enemy without whatever
+                        fight = gameMap.fight(bestAttack, i);
                         // pause
                         // fight
                     }
                 }
             }
+            
             gameMap.enemyTurns(false);
             gameMap.humanTurns(true);
         }
         
 
-        gameMap.checkDeaths();
+    
 
         window.clear();
 
@@ -311,16 +324,19 @@ int main()
             if (gameMap.enemyArmy[enemy]->isTurn()) {
                 fightMenu.draw(window, gameMap.enemyArmy[enemy],
                     gameMap.humanArmy[changedUnit], fight, getPath());
+
+                gameMap.enemyArmy[enemy]->setTurn(false);
                 showFight = false;
             }
             else {
                 fightMenu.draw(window, gameMap.humanArmy[changedUnit],
                     gameMap.enemyArmy[enemy], fight, getPath());
+
                 showFight = false;
             }
         }
         
-        
+        gameMap.checkDeaths();
         window.display();
     }
 

@@ -80,6 +80,7 @@ public:
 	bool isAValidMove(int x, int y, vector<Vector2i> validMoves);
 	bool isAValidAttack(int x, int y, vector<Vector2i> validAttacks);
 	bool isEnemyAdjacent(int x, int y);
+	bool isHumanAdjacent(int x, int y);
 	
 	int returnUnit(int x, int y);
 	int returnHumanUnitFromPosition(int x, int y);
@@ -95,14 +96,14 @@ public:
 	vector<Vector2i> possibleMoves(int unitID);
 	vector<Vector2i> possibleAttacks(int unitID);
 	bool isMoveValid(int unitID, Vector2f mousePos);
-	vector<vector<string>> getMapWithEnemies();
+	vector<vector<int>> getMapWithUnitObstacles();
 	vector<vector<int>> turnMapToInts();
 	vector<vector<int>> turnMapToHumanInts();
 	int possiblePath(int n, int m, vector<vector<int>>& grid, int start_x, int start_y, int end_x, int end_y);
 	void showValidMoves(vector<Vector2i> validMoves, vector<Vector2i> validAttacks, int unitID);
 	void switchWeapon(int unitID, int x) { humanArmy[unitID]->switchWeapon(x); };
 
-	void drawWeaponMenu(sf::RenderWindow& window, int unitID) {
+	void drawWeaponMenu(RenderWindow& window, int unitID) {
 		menu.draw(window, humanArmy[unitID], getPath());
 	}
 
@@ -113,7 +114,9 @@ public:
 
 	void checkDeaths();
 
-	vector<sf::FloatRect> getGlobalBounds() { return menu.getItemBounds(); };
+	void moveEnemyUnit(int enemy, int human);
+
+	vector<FloatRect> getGlobalBounds() { return menu.getItemBounds(); };
 };
 
 #endif
