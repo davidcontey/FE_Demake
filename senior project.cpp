@@ -56,7 +56,7 @@ int main()
 
     bool dragging = false;
     bool unitSelected = false;
-
+    bool turn = false;
     bool showMenu = false;
     bool showWeaponMenu = false;
     bool showPreFightMenu = false;
@@ -73,6 +73,7 @@ int main()
     Game game;
     int changedUnit = 0;
     int enemy = -1;
+    int enemyTurnVar = 0;
     string fight = "";
     Clock clock;
 
@@ -81,10 +82,19 @@ int main()
     {
         Event event;
         while (window.pollEvent(event)) {
-            
+
             if (event.type == Event::Closed) {
                 window.close();
             }
+
+           // if (!gameMap.anyHumanTurns()) {
+           //     gameMap.enemyTurns(true);
+           //     enemyTurnVar = 0;
+           ////     gameMap.humanTurns(false);
+           // }
+            /*else {
+                turn = false;
+            }*/
 
             // Handle mouse events
             if (!showMenu && !showWeaponMenu && !showPreFightMenu && !showEnemyMenu) {
@@ -133,8 +143,8 @@ int main()
                             enemies.clear();
                             cout << "move valid" << endl;
                             gameMap.updatePositions(changedUnit, mousePos);
-                            cout << mousePos.x/50 << ", " << mousePos.y/50 << endl;
-                            enemy = gameMap.returnAdjacentUnit(mousePos.x/50, mousePos.y/50);
+                            cout << mousePos.x / 50 << ", " << mousePos.y / 50 << endl;
+                            enemy = gameMap.returnAdjacentUnit(mousePos.x / 50, mousePos.y / 50);
                             enemies = gameMap.returnAllAdjacentEnemies(changedUnit);
                             showMenu = true;
                         }
@@ -160,7 +170,7 @@ int main()
                     if (menuItemBounds.contains(mousePos)) {
 
                         showMenu = false;
-                    //    showPreFightMenu = true;
+                        //    showPreFightMenu = true;
                         showEnemyMenu = true;
                         cout << "attack box" << endl;
                     }
@@ -187,6 +197,11 @@ int main()
                         showMenu = false;
                         gameMap.humanArmy[changedUnit]->setTurn(false);
                         cout << "wait box" << endl;
+                        if (!gameMap.anyHumanTurns()) {
+                            gameMap.enemyTurns(true);
+                            enemyTurnVar = 0;
+                            gameMap.humanTurns(false);
+                        }
                     }
                 }
             }
@@ -201,6 +216,7 @@ int main()
                                 cout << "Weapon Switched" << endl;
                             }
                             showWeaponMenu = false;
+                            showMenu = true;
                             break;
                         }
                     }
@@ -214,7 +230,7 @@ int main()
                         if (enemyBoxes[i].contains(mousePos)) {
                             if (enemyBoxes.size() - 1 != i) {
                                 enemy = selectEnemyMenu.getSelectedEnemy(i);
-                                cout << "Enemy " << enemy <<  " Selected" << endl;
+                                cout << "Enemy " << enemy << " Selected" << endl;
                                 showPreFightMenu = true;
                             }
                             showEnemyMenu = false;
@@ -236,7 +252,10 @@ int main()
                         showPreFightMenu = false;
                         gameMap.humanArmy[changedUnit]->setTurn(false);
                         showFight = true;
-                    //    cout << "fight time" << endl;
+
+                        
+
+                        //    cout << "fight time" << endl;
                     }
 
                     menuItemBounds = preFightMenu.getReturnItemBounds();
@@ -249,31 +268,83 @@ int main()
                     //this is true
                 }
             }
-            
+
         }
+
+        //how can i do this
+        // while loop? pause?
+        //should just increment probably?
+
         
-        if (!gameMap.anyHumanTurns()) {
-            gameMap.enemyTurns(true);
-            for (int i = 0; i < gameMap.enemyArmy.size(); i++) {
-                if (gameMap.enemyArmy[i]->isTurn()) {
-                    int bestAttack = gameMap.bestAttack(i);
-                //    cout << bestAttack << endl;
-                    if (bestAttack != -1) {
-                        cout << "about to move" << endl;
-                        //move
-                        gameMap.moveEnemyUnit(i, bestAttack);
-                        //if within range, fight
-                        //the way this function above works should just move the enemy without whatever
-                        fight = gameMap.fight(bestAttack, i);
-                        // pause
-                        // fight
+        if (gameMap.enemyArmy[enemyTurnVar]->isTurn()) {
+            int bestAttack = gameMap.bestAttack(enemyTurnVar);
+            cout << bestAttack << endl;
+            if (bestAttack != -1) {
+                cout << "about to move " << enemyTurnVar <<endl;
+                //move
+                cout << "about to be attacked "<< bestAttack << endl;
+                gameMap.moveEnemyUnit(enemyTurnVar, bestAttack);
+                fight = gameMap.fight(bestAttack, enemyTurnVar);
+                
+                fightMenu.draw(window, gameMap.enemyArmy[enemyTurnVar],
+                    gameMap.humanArmy[bestAttack], fight, getPath());
+
+                
+                /*while (true) {
+                    if (clock.getElapsedTime().asSeconds() > 2) {
+                        break;
                     }
+                }*/
+                
+                if (gameMap.enemyArmy[enemyTurnVar]->checkDeath()) {
+                    enemyTurnVar--;
                 }
+
+                gameMap.drawTiles(window);
+             
+                //if within range, fight
+                //the way this function above works should just move the enemy without whatever
+
+                // pause
+                // fight
+                cout << "probably does not break here" << endl;
             }
-            
+            cout << "turn var "<<enemyTurnVar << endl;
+            cout << "enemy army size " << gameMap.enemyArmy.size() << endl;
+            gameMap.enemyArmy[enemyTurnVar]->setTurn(false);
+            enemyTurnVar++;
+        }
+    
+        
+        if (enemyTurnVar >= gameMap.enemyArmy.size()-1) {
             gameMap.enemyTurns(false);
             gameMap.humanTurns(true);
+            enemyTurnVar = 0;
         }
+
+
+        //if (!gameMap.anyHumanTurns()) {
+        //    gameMap.enemyTurns(true);
+        //    for (int i = 0; i < gameMap.enemyArmy.size(); i++) {
+        //        if (gameMap.enemyArmy[i]->isTurn()) {
+        //            int bestAttack = gameMap.bestAttack(i);
+        //        //    cout << bestAttack << endl;
+        //            if (bestAttack != -1) {
+        //                cout << "about to move" << endl;
+        //                //move
+        //                gameMap.moveEnemyUnit(i, bestAttack);
+        //                gameMap.drawTiles(window);
+        //                //if within range, fight
+        //                //the way this function above works should just move the enemy without whatever
+        //            //    fight = gameMap.fight(bestAttack, i);
+        //                // pause
+        //                // fight
+        //            }
+        //        }
+        //    }
+        //    
+        //    
+        //}
         
 
     
@@ -322,16 +393,21 @@ int main()
         if (showFight) {
             window.clear(Color::Black);
             if (gameMap.enemyArmy[enemy]->isTurn()) {
-                fightMenu.draw(window, gameMap.enemyArmy[enemy],
+                /*fightMenu.draw(window, gameMap.enemyArmy[enemy],
                     gameMap.humanArmy[changedUnit], fight, getPath());
 
-                gameMap.enemyArmy[enemy]->setTurn(false);
+                gameMap.enemyArmy[enemy]->setTurn(false);*/
                 showFight = false;
             }
             else {
                 fightMenu.draw(window, gameMap.humanArmy[changedUnit],
                     gameMap.enemyArmy[enemy], fight, getPath());
-
+                gameMap.drawTiles(window);
+                if (!gameMap.anyHumanTurns()) {
+                    gameMap.enemyTurns(true);
+                    enemyTurnVar = 0;
+                    gameMap.humanTurns(false);
+                }
                 showFight = false;
             }
         }

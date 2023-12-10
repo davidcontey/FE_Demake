@@ -21,6 +21,7 @@ private:
 	void setUpPlayerPositions();
 	void setUpEnemyPositions();
 	void setUpTiles();
+	void cleanUpTiles();
 	WeaponMenu menu;
 public:
 	vector<vector<Tile*>> tiles;
@@ -113,6 +114,7 @@ public:
 	bool anyHumanTurns();
 
 	void checkDeaths();
+	void drawTiles(RenderWindow& window);
 
 	void moveEnemyUnit(int enemy, int human);
 

@@ -26,6 +26,8 @@ void Map::setUpPlayerPositions() {
 	humanArmy.push_back(new Unit(1, 13, "Frederick", 1,28,13,2,12,10,6,14,3,7, equipped));
 	equipped.setTomeStats("Thunder");
 	humanArmy.push_back(new Unit(3, 13, "Robin", 1,19,6,5,5,8,2,6,4,5, equipped));
+	equipped.setSwordStats("Bronze Sword");
+	humanArmy[humanArmy.size()-1]->setInventory(equipped);
 }
 
 void Map::setUpEnemyPositions() {
@@ -54,6 +56,7 @@ void Map::setUpEnemyPositions() {
 }
 
 void Map::setUpTiles() {
+	
 	tiles.clear();
 	for (int i = 0; i < gridLength; i++) {
 		vector<Tile*> row;
@@ -332,18 +335,18 @@ int Map::returnUnit(int x, int y) {
 void Map::updatePositions(int selected, Vector2f mousePos) {
 	humanArmy[selected]->pos.x = mousePos.x/50;
 	humanArmy[selected]->pos.y = mousePos.y/50;
+	cleanUpTiles();
 	setUpTiles();
 }
 
 void Map::updatePositions(int selected, Vector2i locs) {
 	humanArmy[selected]->pos.x = locs.x;
 	humanArmy[selected]->pos.y = locs.y;
+	cleanUpTiles();
 	setUpTiles();
 }
 
 string Map::fight(int player, int enemy) {
-	Game game;
-//	game.fight(*humanArmy[player], *enemyArmy[enemy]);
 	int attacks = 1;
 	string outcome = "";
 	if (humanArmy[player]->isTurn()) {
@@ -914,8 +917,23 @@ void Map::moveEnemyUnit(int enemy, int human) {
 				return;
 			}
 		}
-	}
-	
+	}	
+}
 
-	
+void Map::cleanUpTiles() {
+	for (int i = 0; i < gridLength; i++) {
+		for (int j = 0; j < gridHeight; j++) {
+			delete tiles[i][j];
+		}
+	}
+}
+
+void Map::drawTiles(RenderWindow& window) {
+	cleanUpTiles();
+	setUpTiles();
+	for (int i = 0; i < gridLength; i++) {
+		for (int j = 0; j < gridHeight; j++) {
+			window.draw(tiles[i][j]->sprite);
+		}
+	}
 }
