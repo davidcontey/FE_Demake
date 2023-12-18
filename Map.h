@@ -93,6 +93,7 @@ public:
 	void updatePositions(int selected, Vector2f mousePos);
 	void updatePositions(int selected, Vector2i locs);
 	string fight(int player, int enemy);
+	string heal(int healer, int ally);
 
 	vector<Vector2i> possibleMoves(int unitID);
 	vector<Vector2i> possibleAttacks(int unitID);
@@ -100,6 +101,7 @@ public:
 	vector<vector<int>> getMapWithUnitObstacles();
 	vector<vector<int>> turnMapToInts();
 	vector<vector<int>> turnMapToHumanInts();
+	vector<vector<int>> turnMapToJustObstacleInts();
 	int possiblePath(int n, int m, vector<vector<int>>& grid, int start_x, int start_y, int end_x, int end_y);
 	void showValidMoves(vector<Vector2i> validMoves, vector<Vector2i> validAttacks, int unitID);
 	void switchWeapon(int unitID, int x) { humanArmy[unitID]->switchWeapon(x); };

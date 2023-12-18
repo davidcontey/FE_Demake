@@ -348,6 +348,9 @@ void Map::updatePositions(int selected, Vector2i locs) {
 
 string Map::fight(int player, int enemy) {
 	int attacks = 1;
+	vector<vector<int>> map = turnMapToJustObstacleInts();
+	int path = possiblePath(gridHeight, gridLength, map, humanArmy[player]->pos.x, humanArmy[player]->pos.y, 
+		enemyArmy[enemy]->pos.x, enemyArmy[enemy]->pos.y);
 	string outcome = "";
 	if (humanArmy[player]->isTurn()) {
 		if (humanArmy[player]->getSpd() - enemyArmy[enemy]->getSpd() >= 5) {
@@ -358,30 +361,33 @@ string Map::fight(int player, int enemy) {
 		outcome += "Fight ";
 
 		if (humanArmy[player]->checkDeath()) {
-		//	humanArmy.erase(humanArmy.begin() + player);
 			return outcome;
 		}
 
 		if (enemyArmy[enemy]->checkDeath()) {
-		//	enemyArmy.erase(enemyArmy.begin() + enemy);
 			return outcome;
 		}
 		
 		if (!enemyArmy[enemy]->equipped.isAStave()) {
-			outcome += enemyArmy[enemy]->getName();
-			outcome += enemyArmy[enemy]->attack(*humanArmy[player]);
-			outcome += "Fight ";
+			
+			if (!enemyArmy[enemy]->equipped.isMultirange() && path > 1 && enemyArmy[enemy]->equipped.getRange() < 2) {
+				cout << "cant counter" << endl;
+			}
+			else {
+				outcome += enemyArmy[enemy]->getName();
+				outcome += enemyArmy[enemy]->attack(*humanArmy[player]);
+				outcome += "Fight ";
+			}
+			
 		}
 
 		
 
 		if (humanArmy[player]->checkDeath()) {
-		//	humanArmy.erase(humanArmy.begin() + player);
 			return outcome;
 		}
 
 		if (enemyArmy[enemy]->checkDeath()) {
-		//	enemyArmy.erase(enemyArmy.begin() + enemy);
 			return outcome;
 		}
 
@@ -393,18 +399,15 @@ string Map::fight(int player, int enemy) {
 			outcome += "Fight ";
 
 			if (humanArmy[player]->checkDeath()) {
-				//	humanArmy.erase(humanArmy.begin() + player);
 				return outcome;
 			}
 
 			if (enemyArmy[enemy]->checkDeath()) {
-				//	enemyArmy.erase(enemyArmy.begin() + enemy);
 				return outcome;
 			}
 		}
 	}
 	else {
-		//TODO add check death
 		if (enemyArmy[enemy]->getSpd() - humanArmy[player]->getSpd() >= 5) {
 			attacks = 2;
 		}
@@ -413,21 +416,25 @@ string Map::fight(int player, int enemy) {
 		outcome += "Fight ";
 
 		if (humanArmy[player]->checkDeath()) {
-			//	humanArmy.erase(humanArmy.begin() + player);
 			return outcome;
 		}
 
 		if (enemyArmy[enemy]->checkDeath()) {
-			//	enemyArmy.erase(enemyArmy.begin() + enemy);
-			cout << outcome << endl;
 			return outcome;
 		}
 
 
 		if (!humanArmy[player]->equipped.isAStave()) {
-			outcome += humanArmy[player]->getName();
-			outcome += humanArmy[player]->attack(*enemyArmy[enemy]);
-			outcome += "Fight ";
+
+			if (!humanArmy[player]->equipped.isMultirange() && path > 1 && humanArmy[player]->equipped.getRange() < 2) {
+				cout << "cant counter" << endl;
+			}
+			else {
+				outcome += humanArmy[player]->getName();
+				outcome += humanArmy[player]->attack(*enemyArmy[enemy]);
+				outcome += "Fight ";
+			}
+			
 		}
 		
 
@@ -454,6 +461,12 @@ string Map::fight(int player, int enemy) {
 	}
 	
 	return outcome;
+}
+
+string Map::heal(int healer, int ally) {
+	string heal = humanArmy[healer]->allyHealCalc(*humanArmy[ally]);
+	cout << heal << endl;
+	return heal;
 }
 
 vector<Vector2i> Map::possibleMoves(int unitID) {
@@ -536,6 +549,23 @@ vector<vector<int>> Map::turnMapToInts() {
 			isEnemyTile = isAEnemyTile(i, j);
 			if (map1[j][i] == "g" && isEnemyTile) row.push_back(1);
 			else if (map1[j][i] == "g") row.push_back(0);
+			if (map1[j][i] == "w") row.push_back(1);
+			if (map1[j][i] == "n") row.push_back(1);
+		}
+		map.push_back(row);
+	}
+
+	return map;
+}
+
+vector<vector<int>> Map::turnMapToJustObstacleInts() {
+	vector<vector<int>> map;
+	bool isEnemyTile = false;
+	for (int i = 0; i < gridHeight; i++) {
+		vector<int> row;
+		for (int j = 0; j < gridLength; j++) {
+			isEnemyTile = isAEnemyTile(i, j);
+			if (map1[j][i] == "g") row.push_back(0);
 			if (map1[j][i] == "w") row.push_back(1);
 			if (map1[j][i] == "n") row.push_back(1);
 		}
@@ -689,13 +719,6 @@ int Map::bestAttack(int enemy) {
 			armyLoc = i;
 		}
 	}
-
-	/*if (armyLoc != -1) {
-		cout << "best person to attack for this mans is " << humanArmy[armyLoc]->getName() << endl;
-	}
-	else {
-		cout << "nothing for " << enemyArmy[enemy]->getName() << " to attack" << endl;
-	}*/
 
 	return armyLoc;
 }

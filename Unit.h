@@ -238,6 +238,12 @@ public:
         if (hp > maxHP) hp = maxHP;
     }
 
+    string allyHealCalc(Unit &ally) {
+        int heal = (getMag() / 2) + 8;
+        ally.heal(heal);
+        return getName() + " Heal " + ally.getName() + " " + to_string(heal);
+    }
+
     bool checkDeath() {
         if (hp <= 0) {
             cout << getName() <<" is dead." << endl;
