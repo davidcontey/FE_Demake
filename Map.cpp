@@ -13,6 +13,25 @@ void Map::setUpMap1() {
 	setUpTiles();
 }
 
+/*
+NAME
+
+		Map::setUpPlayerPositions - Sets up initial player positions
+
+SYNOPSIS
+
+		void Map::setUpPlayerPositions();
+
+DESCRIPTION
+
+		This function will set up initial  human player positions
+		for the given map. Considering there is only one map, this is for map 1.
+RETURNS
+
+		Nothing !
+
+*/
+
 void Map::setUpPlayerPositions() {
 	humanArmy.clear();
 
@@ -29,6 +48,26 @@ void Map::setUpPlayerPositions() {
 	equipped.setSwordStats("Bronze Sword");
 	humanArmy[humanArmy.size()-1]->setInventory(equipped);
 }
+
+/*
+NAME
+
+		Map::setUpEnemyPositions - Sets up initial computer player positions
+
+SYNOPSIS
+
+		void Map::setUpEnemyPositions();
+
+DESCRIPTION
+
+		This function will set up initial computer player positions
+		for the given map. Considering there is only one map, this is for map 1.
+
+RETURNS
+
+		Nothing !
+
+*/
 
 void Map::setUpEnemyPositions() {
 	// https://fireemblemwiki.org/wiki/The_Verge_of_History#Enemy_data
@@ -54,6 +93,26 @@ void Map::setUpEnemyPositions() {
 	enemyArmy.push_back(new Unit(3, 9, "RuffianS", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5, equipped));
 	enemyArmy.push_back(new Unit(8, 11, "RuffianS", 1, 15, 4, 0, 5, 6, 4, 1, 0, 5, equipped));
 }
+
+/*
+NAME
+
+		Map::setUpTiles - Sets up tiles, which are displayed to the screem
+
+SYNOPSIS
+
+		void Map::setUpTiles();
+
+DESCRIPTION
+
+		This function will set up tiles of the given map. It will take into account if
+		a tile is occupied by a unit, and will display tiles that are impassable
+
+RETURNS
+
+		Nothing !
+
+*/
 
 void Map::setUpTiles() {
 	
@@ -86,6 +145,28 @@ void Map::setUpTiles() {
 	}
 }
 
+/*
+NAME
+
+		Map::isAPlayerTile - returns whether or not a tile is from a human unit
+
+SYNOPSIS
+
+		bool Map::isAPlayerTile(int x, int y);
+			x->x position
+			y->y position
+
+DESCRIPTION
+
+		This function will return if a given tile is occupied by a human unit.
+		It will loop through the humanArmy, and check their positions
+
+RETURNS
+
+		true or false, if the tile is found or not
+
+*/
+
 bool Map::isAPlayerTile(int x, int y) {
 	for (int i = 0; i < humanArmy.size(); i++) {
 		if (y == humanArmy[i]->pos.y && x == humanArmy[i]->pos.x) {
@@ -94,6 +175,28 @@ bool Map::isAPlayerTile(int x, int y) {
 	}
 	return false;
 }
+
+/*
+NAME
+
+		Map::isAEnemyTile - returns whether or not a tile is from a computer unit
+
+SYNOPSIS
+
+		bool Map::isAEnemyTile(int x, int y);
+			x->x position
+			y->y position
+
+DESCRIPTION
+
+		This function will return if a given tile is occupied by an enemy unit.
+		It will loop through the enemyArmy, and check their positions
+
+RETURNS
+
+		true or false, if the tile is found or not
+
+*/
 
 bool Map::isAEnemyTile(int x, int y) {
 	for (int i = 0; i < enemyArmy.size(); i++) {
@@ -104,6 +207,29 @@ bool Map::isAEnemyTile(int x, int y) {
 	return false;
 }
 
+/*
+NAME
+
+		Map::returnHumanUnitFromPosition - returns the index of the humanArmy that is found
+
+SYNOPSIS
+
+		bool Map::returnHumanUnitFromPosition(int x, int y);
+			x->x position
+			y->y position
+
+DESCRIPTION
+
+		This function will return the index of the human unit that may or may not be
+		found by looping through the human vector.
+
+RETURNS
+
+		the index of human unit that is found from the given position, or -1
+		-1 denotes that nothing was found
+
+*/
+
 int Map::returnHumanUnitFromPosition(int x, int y) {
 	for (int i = 0; i < humanArmy.size(); i++) {
 		if (y == humanArmy[i]->pos.y && x == humanArmy[i]->pos.x) {
@@ -112,6 +238,29 @@ int Map::returnHumanUnitFromPosition(int x, int y) {
 	}
 	return -1;
 }
+
+/*
+NAME
+
+		Map::returnEnemyUnitFromPosition - returns the index of the enemyArmy that is found
+
+SYNOPSIS
+
+		bool Map::returnEnemyUnitFromPosition(int x, int y);
+			x->x position
+			y->y position
+
+DESCRIPTION
+
+		This function will return the index of the computer player unit that 
+		may or may not be found by looping through the human vector.
+
+RETURNS
+
+		the index of computer unit that is found from the given position, or -1
+		-1 denotes that nothing was found
+
+*/
 
 int Map::returnEnemyUnitFromPosition(int x, int y) {
 	for (int i = 0; i < enemyArmy.size(); i++) {
